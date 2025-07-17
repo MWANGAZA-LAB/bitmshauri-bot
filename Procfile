@@ -1,1 +1,1 @@
-worker: PYTHONPATH=. python worker.py
+worker: python telegram_bot.py
