@@ -4,7 +4,7 @@ from telegram.ext import (
     Application, CommandHandler, MessageHandler,
     filters, CallbackContext
 )
-from .. import app
+#from app import app
 from app.bot.price_api import get_bitcoin_price
 from app.bot.content_swahili import LESSONS, MENU_KEYBOARD, QUIZZES, DAILY_TIPS, SECONDARY_MENU_KEYBOARD
 from app.database import update_user, get_all_users, update_last_tip
@@ -263,7 +263,7 @@ async def handle_message(update: Update, context: CallbackContext):
 # --- Bot Initialization ---
 def init_bot():
     try:
-        application = Application.builder().token(app.config['TELEGRAM_TOKEN']).build()
+        application = Application.builder().token(os.getenv("TELEGRAM_TOKEN")).build()
         
         # Register handlers
         application.add_handler(CommandHandler("start", start))
