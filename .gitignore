@@ -1,12 +1,6 @@
-# Create .gitignore file with these contents
-@"
 venv/
 .env
 *.db
 __pycache__/
 *.pyc
 *.log
-.DS_Store
-*.sqlite3
-*.env
-"@ | Out-File -FilePath .\.gitignore -Encoding utf8
