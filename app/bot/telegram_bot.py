@@ -114,6 +114,7 @@ async def ai_answer_handler(update: Update, context: CallbackContext):
         answer = result["choices"][0]["message"]["content"].strip()
         await update.message.reply_text(answer)
     except Exception as e:
+        logger.error(f"AI handler error: {e}")  # <--- Add this line
         await update.message.reply_text("Samahani, kuna tatizo na huduma ya AI. Tafadhali jaribu tena baadaye.")
 
 async def start_quiz(update: Update, context: CallbackContext):
@@ -239,15 +240,6 @@ async def handle_message(update: Update, context: CallbackContext):
         "Bitsacco": lambda u, c: handle_purchase_platform(u, c, "Bitsacco"),
         "✅ Nimemaliza Muamala": transaction_complete,
     }
-
-    if text in responses:
-        await responses[text](update, context)
-    else:
-        await update.message.reply_text(
-            "Samahani, sijaelewa. Tafadhali chagua moja ya chaguo zilizopo kwenye menyu.",
-            reply_markup=create_menu()
-        )
-
     if text == "❓ Maswali Mengine":
         await update.message.reply_text(
             "Andika swali lako kuhusu Bitcoin hapa chini, na nitakujibu moja kwa moja!"
@@ -259,6 +251,17 @@ async def handle_message(update: Update, context: CallbackContext):
         context.user_data["awaiting_ai_question"] = False
         await ai_answer_handler(update, context)
         return
+    
+    # Handle static responses or commands
+    if text in responses:
+        await responses[text](update, context)
+    else:
+        await update.message.reply_text(
+            "Samahani, sijaelewa. Tafadhali chagua moja ya chaguo zilizopo kwenye menyu.",
+            reply_markup=create_menu()
+        )
+
+
 
 # --- Bot Initialization ---
 def init_bot():
