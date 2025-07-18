@@ -1,5 +1,5 @@
 import requests
-from app import app
+#from app import app
 
 def get_bitcoin_price():
     try:

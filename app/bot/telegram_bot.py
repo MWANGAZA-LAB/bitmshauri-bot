@@ -1,3 +1,4 @@
+from dotenv import load_dotenv; load_dotenv()
 import logging
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (
@@ -13,6 +14,7 @@ import random
 import os
 import requests
 from datetime import datetime, timedelta
+
 
 # Configure logging
 logging.basicConfig(
