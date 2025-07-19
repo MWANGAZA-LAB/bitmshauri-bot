@@ -77,3 +77,22 @@ def get_user_by_id(user_id):
     with db_connection() as c:
         c.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
         return c.fetchone()
+
+def create_feedback_table():
+    with db_connection() as c:
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS feedback (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                username TEXT,
+                feedback TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+def save_feedback(user_id, username, feedback):
+    with db_connection() as c:
+        c.execute(
+            "INSERT INTO feedback (user_id, username, feedback) VALUES (?, ?, ?)",
+            (user_id, username, feedback)
+        )

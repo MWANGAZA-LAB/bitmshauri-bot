@@ -9,7 +9,7 @@ from telegram.ext import (
 #from app import app
 from app.bot.price_api import get_bitcoin_price
 from app.bot.content_swahili import LESSONS, MENU_KEYBOARD, QUIZZES, DAILY_TIPS, SECONDARY_MENU_KEYBOARD
-from app.database import update_user, get_all_users, update_last_tip
+from app.database import update_user, get_all_users, update_last_tip, save_feedback
 from apscheduler.schedulers.background import BackgroundScheduler
 import random
 import requests
@@ -229,6 +229,13 @@ async def scheduled_tip_job(context: CallbackContext):
         # For now, we will send to all for simplicity of testing.
         await send_daily_tip(context.bot, user_id, chat_id)
 
+# --- Feedback Handler ---
+async def ask_for_feedback(update: Update, context: CallbackContext):
+    await update.message.reply_text(
+        "Tafadhali andika maoni au ushauri wako hapa chini. Tunathamini mchango wako!"
+    )
+    context.user_data["awaiting_feedback"] = True
+
 # --- Main Message Handler ---
 async def handle_message(update: Update, context: CallbackContext):
     user = update.effective_user
@@ -237,6 +244,14 @@ async def handle_message(update: Update, context: CallbackContext):
 
     if user.id in user_quiz_state:
         await handle_quiz_answer(update, context)
+        return
+
+    if context.user_data.get("awaiting_feedback"):
+        context.user_data["awaiting_feedback"] = False
+        feedback = update.message.text
+        user = update.effective_user
+        save_feedback(user.id, user.username, feedback)
+        await update.message.reply_text("Asante kwa maoni yako!")
         return
 
     # Static lesson content and main menu actions
@@ -260,6 +275,7 @@ async def handle_message(update: Update, context: CallbackContext):
         "Bitsacco": lambda u, c: handle_purchase_platform(u, c, "Bitsacco"),
         "Fedi": lambda u, c: handle_purchase_platform(u, c, "Fedi"),
         "✅ Nimemaliza Muamala": transaction_complete,
+        "📝 Toa Maoni": lambda u, c: ask_for_feedback(u, c),
     }
     if text == "❓ Maswali Mengine":
         await update.message.reply_text(
