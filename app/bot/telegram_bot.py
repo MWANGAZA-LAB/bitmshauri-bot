@@ -6,7 +6,7 @@ from telegram.ext import (
     Application, CommandHandler, MessageHandler,
     filters, CallbackContext
 )
-from app import app
+#from app import app
 from app.bot.price_api import get_bitcoin_price
 from app.bot.content_swahili import LESSONS, MENU_KEYBOARD, QUIZZES, DAILY_TIPS, SECONDARY_MENU_KEYBOARD
 from app.database import update_user, get_all_users, update_last_tip
@@ -14,7 +14,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import random
 import requests
 from datetime import datetime, timedelta
-
+from app.database import get_user_by_id
 
 # Configure logging
 logging.basicConfig(
@@ -282,9 +282,6 @@ async def handle_message(update: Update, context: CallbackContext):
 def init_bot():
     try:
         application = Application.builder().token(os.getenv("TELEGRAM_TOKEN")).build()
-def init_bot():
-    try:
-        application = Application.builder().token(os.getenv("TELEGRAM_TOKEN")).build()
         
         # Register handlers
         application.add_handler(CommandHandler("start", start))
@@ -297,6 +294,9 @@ def init_bot():
         
         logger.info("Telegram bot initialized successfully")
         return application
+    
     except Exception as e:
         logger.error(f"Failed to initialize bot: {e}")
         raise
+    
+bot_app = init_bot()

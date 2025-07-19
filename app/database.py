@@ -71,3 +71,9 @@ def get_all_users():
     with db_connection() as c:
         c.execute("SELECT user_id, chat_id FROM users")
         return c.fetchall()
+
+def get_user_by_id(user_id):
+    """Retrieve a user's record by their user_id."""
+    with db_connection() as c:
+        c.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
+        return c.fetchone()
