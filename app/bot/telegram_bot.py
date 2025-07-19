@@ -119,16 +119,22 @@ async def ai_answer_handler(update: Update, context: CallbackContext):
             {"role": "system", "content": "Jibu maswali kuhusu Bitcoin kwa Kiswahili, kwa ufupi na urafiki."},
             {"role": "user", "content": prompt}
         ],
-        "max_tokens": 200
+        "max_tokens": 400  # Increased for longer answers
     }
     try:
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
         result = response.json()
-        answer = result["choices"][0]["message"]["content"].strip()
-        await update.message.reply_text(answer)
-    
+        logger.info(f"OpenAI response: {result}")  # Log the full response for debugging
+
+        if "choices" in result and result["choices"]:
+            answer = result["choices"][0]["message"]["content"].strip()
+            await update.message.reply_text(answer)
+        else:
+            error_msg = result.get("error", {}).get("message", "Hakuna jibu lililopatikana kutoka AI.")
+            await update.message.reply_text(f"Samahani, AI haikuweza kujibu: {error_msg}")
+
     except Exception as e:
-        logger.error(f"AI handler error: {e}")  
+        logger.error(f"AI handler error: {e}")
         await update.message.reply_text("Samahani, kuna tatizo na huduma ya AI. Tafadhali jaribu tena baadaye.")
 
 async def start_quiz(update: Update, context: CallbackContext):
