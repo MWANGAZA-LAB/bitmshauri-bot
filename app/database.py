@@ -96,3 +96,4 @@ def save_feedback(user_id, username, feedback):
             "INSERT INTO feedback (user_id, username, feedback) VALUES (?, ?, ?)",
             (user_id, username, feedback)
         )
+create_feedback_table()
