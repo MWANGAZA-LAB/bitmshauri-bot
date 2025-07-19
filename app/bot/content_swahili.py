@@ -129,7 +129,22 @@ LESSONS = {
             "   - Haina ulinzi kama pesa za kawaida\n\n"
             "3. *Ni kiasi gani cha chini cha kununua?*\n"
             "   - Unaweza kununua hadi 500 KSh (0.00001 BTC)\n"
-            "   - Hakuna kikomo cha chini cha sharti"
+            "   - Hakuna kikomo cha chini cha sharti\n\n"
+            "4. *Ninawezaje kuhifadhi Bitcoin salama?*\n"
+            "   - Tumia hardware wallet au seed phrase iliyoandikwa chini\n\n"
+            "5. *Je, Bitcoin inaweza kupotea?*\n"
+            "   - Ndio, ukipoteza seed phrase au private key, huwezi kurejesha Bitcoin zako\n\n"
+            "6. *Ninaweza kutumia Bitcoin kununua nini?*\n"
+            "   - Bidhaa na huduma mtandaoni, au kubadilisha kwa pesa taslimu kupitia P2P\n\n"
+            "7. *Je, Bitcoin ni haramu?*\n"
+            "   - Hapana, lakini inategemea sheria za nchi yako\n\n"
+            "8. *Ninawezaje kuona salio langu la Bitcoin?*\n"
+            "   - Fungua pochi yako na angalia balance\n\n"
+            "9. *Je, Bitcoin inaweza kudukuliwa?*\n"
+            "   - Mtandao wa Bitcoin ni salama, lakini pochi yako inaweza kudukuliwa kama hujalinda vizuri\n\n"
+            "10. *Ninawezaje kupata Bitcoin bila kununua?*\n"
+            "   - Unaweza kufanya kazi mtandaoni na kulipwa kwa Bitcoin, au kupata zawadi (airdrops)\n\n"
+            "Je, una swali lingine? Andika hapa chini na nitakujibu moja kwa moja!"
         )
     },
     "mpesa_guide": {

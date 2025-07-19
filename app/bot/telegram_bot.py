@@ -279,7 +279,8 @@ async def handle_message(update: Update, context: CallbackContext):
     }
     if text == "❓ Maswali Mengine":
         await update.message.reply_text(
-            "Andika swali lako kuhusu Bitcoin hapa chini, na nitakujibu moja kwa moja!"
+            LESSONS['maswali_mengine']['content'],
+            parse_mode="Markdown"
         )
         context.user_data["awaiting_ai_question"] = True
         return
