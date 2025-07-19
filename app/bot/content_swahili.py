@@ -135,7 +135,7 @@ LESSONS = {
     "mpesa_guide": {
         "content": (
             "📱 *Kununua Bitcoin kwa M-Pesa:*\\n\\n"
-            "1. Nenda bitsacco.com au bitika.xyz\\n"
+            "1. Nenda bitsacco.com, fedi.xyz au bitika.xyz\\n"
             "2. Tafuta muuzaji mwenye rating nzuri\\n"
             "3. Chagua 'Nunua kwa M-Pesa'\\n"
             "4. Fuata maelekezo kwenye skrini\\n"

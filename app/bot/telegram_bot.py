@@ -1,17 +1,17 @@
 from dotenv import load_dotenv; load_dotenv()
+import os
 import logging
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (
     Application, CommandHandler, MessageHandler,
     filters, CallbackContext
 )
-#from app import app
+from app import app
 from app.bot.price_api import get_bitcoin_price
 from app.bot.content_swahili import LESSONS, MENU_KEYBOARD, QUIZZES, DAILY_TIPS, SECONDARY_MENU_KEYBOARD
 from app.database import update_user, get_all_users, update_last_tip
 from apscheduler.schedulers.background import BackgroundScheduler
 import random
-import os
 import requests
 from datetime import datetime, timedelta
 
@@ -22,6 +22,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
 
 # --- State & Keyboard Management ---
 user_quiz_state = {}
@@ -64,17 +65,27 @@ async def back_to_main_menu(update: Update, context: CallbackContext):
         reply_markup=create_menu()
     )
 
+async def health(update: Update, context: CallbackContext):
+    await update.message.reply_text("✅ Bot is running!")
+
 # --- Purchase Flow Handlers ---
 async def purchase_bitcoin(update: Update, context: CallbackContext):
-    keyboard = [["Bitika", "Bitsacco"], ["⬅️ Rudi Mwanzo"]]
+    keyboard = [["Bitika", "Bitsacco", "Fedi"], ["⬅️ Rudi Mwanzo"]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text(
-        "Unaweza kununua Bitcoin kupitia Bitika au Bitsacco. Chagua jukwaa unalopendelea:",
+        "Unaweza kununua Bitcoin kupitia Bitika, Fedi au Bitsacco. Chagua jukwaa unalopendelea:",
         reply_markup=reply_markup
     )
 
 async def handle_purchase_platform(update: Update, context: CallbackContext, platform: str):
-    url = "bitika.xyz" if platform == "Bitika" else "bitsacco.com"
+    if platform == "Bitika":
+        url = "bitika.xyz"
+    elif platform == "Bitsacco":
+        url = "bitsacco.com"
+    elif platform == "Fedi":
+        url = "fedi.xyz"
+    else:
+        url = "unknown-platform.com"
     message = (
         f"Asante kwa kuchagua {platform}! Tafadhali tembelea [{url}](https://{url}) "
         "kukamilisha ununuzi wako. \n\nBonyeza hapa chini ukimaliza."
@@ -115,8 +126,9 @@ async def ai_answer_handler(update: Update, context: CallbackContext):
         result = response.json()
         answer = result["choices"][0]["message"]["content"].strip()
         await update.message.reply_text(answer)
+    
     except Exception as e:
-        logger.error(f"AI handler error: {e}")  # <--- Add this line
+        logger.error(f"AI handler error: {e}")  
         await update.message.reply_text("Samahani, kuna tatizo na huduma ya AI. Tafadhali jaribu tena baadaye.")
 
 async def start_quiz(update: Update, context: CallbackContext):
@@ -240,6 +252,7 @@ async def handle_message(update: Update, context: CallbackContext):
         "🛒 Nunua Bitcoin": purchase_bitcoin,
         "Bitika": lambda u, c: handle_purchase_platform(u, c, "Bitika"),
         "Bitsacco": lambda u, c: handle_purchase_platform(u, c, "Bitsacco"),
+        "Fedi": lambda u, c: handle_purchase_platform(u, c, "Fedi"),
         "✅ Nimemaliza Muamala": transaction_complete,
     }
     if text == "❓ Maswali Mengine":
@@ -269,9 +282,13 @@ async def handle_message(update: Update, context: CallbackContext):
 def init_bot():
     try:
         application = Application.builder().token(os.getenv("TELEGRAM_TOKEN")).build()
+def init_bot():
+    try:
+        application = Application.builder().token(os.getenv("TELEGRAM_TOKEN")).build()
         
         # Register handlers
         application.add_handler(CommandHandler("start", start))
+        application.add_handler(CommandHandler("health", health))
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
         
         # Schedule daily tips
@@ -283,5 +300,3 @@ def init_bot():
     except Exception as e:
         logger.error(f"Failed to initialize bot: {e}")
         raise
-
-bot_app = init_bot()

@@ -69,6 +69,9 @@ bitmshauri-bot/
 
 ---
 
+## Database Migration
+For schema changes, use a migration tool like Alembic or manually update your SQLite schema.
+
 ## Contributing
 
 We welcome contributions!  
