@@ -30,10 +30,10 @@ user_quiz_state = {}
 def create_menu():
     return ReplyKeyboardMarkup(MENU_KEYBOARD, resize_keyboard=True, one_time_keyboard=False)
 
+
 def create_secondary_menu():
     return ReplyKeyboardMarkup(SECONDARY_MENU_KEYBOARD, resize_keyboard=True, one_time_keyboard=False)
 
-# --- Core Command Handlers ---
 async def start(update: Update, context: CallbackContext):
     user = update.effective_user
     update_user(user, update.effective_chat.id)
@@ -48,25 +48,26 @@ async def start(update: Update, context: CallbackContext):
         reply_markup=create_menu()
     )
 
+
 async def price_command(update: Update, context: CallbackContext):
     price = get_bitcoin_price()
     await update.message.reply_text(price, parse_mode="Markdown")
-
-# --- Menu Navigation Handlers ---
+    await update.message.reply_text(price, parse_mode="Markdown")
 async def show_more_help(update: Update, context: CallbackContext):
     await update.message.reply_text(
         "Chagua mada unayotaka kujifunza zaidi:",
         reply_markup=create_secondary_menu()
     )
 
+
 async def back_to_main_menu(update: Update, context: CallbackContext):
     await update.message.reply_text(
         "Unakaribishwa tena kwenye menyu kuu.",
         reply_markup=create_menu()
     )
-
 async def health(update: Update, context: CallbackContext):
     await update.message.reply_text("✅ Bot is running!")
+
 
 # --- Purchase Flow Handlers ---
 async def purchase_bitcoin(update: Update, context: CallbackContext):
@@ -76,7 +77,6 @@ async def purchase_bitcoin(update: Update, context: CallbackContext):
         "Unaweza kununua Bitcoin kupitia Bitika, Fedi au Bitsacco. Chagua jukwaa unalopendelea:",
         reply_markup=reply_markup
     )
-
 async def handle_purchase_platform(update: Update, context: CallbackContext, platform: str):
     if platform == "Bitika":
         url = "bitika.xyz"
@@ -94,6 +94,7 @@ async def handle_purchase_platform(update: Update, context: CallbackContext, pla
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text(message, parse_mode="Markdown", reply_markup=reply_markup)
 
+
 async def transaction_complete(update: Update, context: CallbackContext):
     user = update.effective_user
     message = (
@@ -101,11 +102,6 @@ async def transaction_complete(update: Update, context: CallbackContext):
         "Asante kwa kutumia BitMshauri. Tunatumai umepata huduma bora."
     )
     await update.message.reply_text(message, reply_markup=create_menu())
-
-# --- Quiz Handlers ---
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Set this in your environment
-
 async def ai_answer_handler(update: Update, context: CallbackContext):
     user_question = update.message.text
     prompt = f"Jibu swali lifuatalo kuhusu Bitcoin kwa Kiswahili: {user_question}"
@@ -137,11 +133,11 @@ async def ai_answer_handler(update: Update, context: CallbackContext):
         logger.error(f"AI handler error: {e}")
         await update.message.reply_text("Samahani, kuna tatizo na huduma ya AI. Tafadhali jaribu tena baadaye.")
 
+
 async def start_quiz(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     user_quiz_state[user_id] = {'quiz_name': 'msingi', 'current_question': 0, 'score': 0}
     await ask_quiz_question(update, context, user_id)
-
 async def ask_quiz_question(update: Update, context: CallbackContext, user_id: int):
     state = user_quiz_state.get(user_id)
     if not state:
@@ -158,7 +154,14 @@ async def ask_quiz_question(update: Update, context: CallbackContext, user_id: i
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text(q_text, reply_markup=reply_markup, parse_mode="Markdown")
 
+
 async def handle_quiz_answer(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    text = update.message.text
+    state = user_quiz_state.get(user_id)
+    if not state:
+        await update.message.reply_text("Samahani, jaribio limeisha. Tafadhali anza tena.", reply_markup=create_menu())
+        return
     user_id = update.effective_user.id
     text = update.message.text
     state = user_quiz_state.get(user_id)
@@ -200,13 +203,6 @@ async def handle_quiz_answer(update: Update, context: CallbackContext):
                          ("💪", "Endelea kujifunza, utafanikiwa!")
         result = (
             f"{emoji} *Umeshinda Jaribio!*\n\n"
-            f"Alama: {score}/{total} ({percentage}%)\n{message}\n\n"
-            "Unaweza kujaribu tena wakati wowote!"
-        )
-        await update.message.reply_text(result, reply_markup=create_menu(), parse_mode="Markdown")
-        del user_quiz_state[user_id]
-
-# --- Daily Tip Scheduler ---
 async def send_daily_tip(bot, user_id, chat_id):
     # This is a helper for the main scheduler to avoid code duplication
     try:
@@ -216,6 +212,7 @@ async def send_daily_tip(bot, user_id, chat_id):
         logger.info(f"Sent tip to user {user_id}")
     except Exception as e:
         logger.error(f"Failed to send tip to user {user_id}: {e}")
+
 
 async def scheduled_tip_job(context: CallbackContext):
     logger.info("Running scheduled daily tips job...")
@@ -228,11 +225,19 @@ async def scheduled_tip_job(context: CallbackContext):
         # Add logic to check if a tip should be sent (e.g., not in the last 23 hours)
         # For now, we will send to all for simplicity of testing.
         await send_daily_tip(context.bot, user_id, chat_id)
-
-# --- Feedback Handler ---
+        logger.info("No users found to send tips to.")
 async def ask_for_feedback(update: Update, context: CallbackContext):
     await update.message.reply_text(
         "Tafadhali andika maoni au ushauri wako hapa chini. Tunathamini mchango wako!"
+    )
+    context.user_data["awaiting_feedback"] = True
+
+
+# --- Main Message Handler ---
+async def handle_message(update: Update, context: CallbackContext):
+    user = update.effective_user
+    text = update.message.text
+    update_user(user, update.effective_chat.id)
     )
     context.user_data["awaiting_feedback"] = True
 
@@ -294,14 +299,6 @@ async def handle_message(update: Update, context: CallbackContext):
     if text in responses:
         await responses[text](update, context)
     else:
-        await update.message.reply_text(
-            "Samahani, sijaelewa. Tafadhali chagua moja ya chaguo zilizopo kwenye menyu.",
-            reply_markup=create_menu()
-        )
-
-
-
-# --- Bot Initialization ---
 def init_bot():
     try:
         application = Application.builder().token(os.getenv("TELEGRAM_TOKEN")).build()
@@ -321,5 +318,6 @@ def init_bot():
     except Exception as e:
         logger.error(f"Failed to initialize bot: {e}")
         raise
-    
+
+
 bot_app = init_bot()
