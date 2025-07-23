@@ -16,7 +16,6 @@ import random
 import requests
 from datetime import datetime, timedelta
 from app.database import get_user_by_id
-import pytz  # Add this import at the top
 
 # Configure logging
 logging.basicConfig(
@@ -50,23 +49,23 @@ async def start(update: Update, context: CallbackContext):
         reply_markup=create_menu()
     )
 
-
 async def price_command(update: Update, context: CallbackContext):
     price = get_bitcoin_price()
     await update.message.reply_text(price, parse_mode="Markdown")
     await update.message.reply_text(price, parse_mode="Markdown")
+    
 async def show_more_help(update: Update, context: CallbackContext):
     await update.message.reply_text(
         "Chagua mada unayotaka kujifunza zaidi:",
         reply_markup=create_secondary_menu()
     )
 
-
 async def back_to_main_menu(update: Update, context: CallbackContext):
     await update.message.reply_text(
         "Unakaribishwa tena kwenye menyu kuu.",
         reply_markup=create_menu()
     )
+    
 async def health(update: Update, context: CallbackContext):
     await update.message.reply_text("✅ Bot is running!")
 
@@ -79,6 +78,7 @@ async def purchase_bitcoin(update: Update, context: CallbackContext):
         "Unaweza kununua Bitcoin kupitia Bitika, Fedi au Bitsacco. Chagua jukwaa unalopendelea:",
         reply_markup=reply_markup
     )
+    
 async def handle_purchase_platform(update: Update, context: CallbackContext, platform: str):
     if platform == "Bitika":
         url = "bitika.xyz"
@@ -96,7 +96,6 @@ async def handle_purchase_platform(update: Update, context: CallbackContext, pla
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text(message, parse_mode="Markdown", reply_markup=reply_markup)
 
-
 async def transaction_complete(update: Update, context: CallbackContext):
     user = update.effective_user
     message = (
@@ -104,6 +103,7 @@ async def transaction_complete(update: Update, context: CallbackContext):
         "Asante kwa kutumia BitMshauri. Tunatumai umepata huduma bora."
     )
     await update.message.reply_text(message, reply_markup=create_menu())
+    
 async def ai_answer_handler(update: Update, context: CallbackContext):
     user_question = update.message.text
     prompt = f"Jibu swali lifuatalo kuhusu Bitcoin kwa Kiswahili: {user_question}"
@@ -140,6 +140,7 @@ async def start_quiz(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     user_quiz_state[user_id] = {'quiz_name': 'msingi', 'current_question': 0, 'score': 0}
     await ask_quiz_question(update, context, user_id)
+    
 async def ask_quiz_question(update: Update, context: CallbackContext, user_id: int):
     state = user_quiz_state.get(user_id)
     if not state:
@@ -232,6 +233,7 @@ async def scheduled_tip_job(context: CallbackContext):
         # For now, we will send to all for simplicity of testing.
         await send_daily_tip(context.bot, user_id, chat_id)
         logger.info("No users found to send tips to.")
+        
 async def ask_for_feedback(update: Update, context: CallbackContext):
     await update.message.reply_text(
         "Tafadhali andika maoni au ushauri wako hapa chini. Tunathamini mchango wako!"
@@ -313,15 +315,7 @@ def init_bot():
         application.add_handler(CommandHandler("health", health))
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
         
-        # Schedule daily tips
-        job_queue = application.job_queue
-        nairobi_tz = pytz.timezone("Africa/Nairobi")  # Use your local timezone
-        job_queue.run_daily(
-            scheduled_tip_job,
-            time=datetime.strptime('09:00', '%H:%M').time(),
-            days=(0, 1, 2, 3, 4, 5, 6),
-            timezone=nairobi_tz
-        )
+
         
         logger.info("Telegram bot initialized successfully")
         return application
@@ -332,3 +326,7 @@ def init_bot():
 
 
 bot_app = init_bot()
+
+job_queue = BackgroundScheduler()
+job_queue.add_job(scheduled_tip_job, 'interval', hours=24)
+job_queue.start()
