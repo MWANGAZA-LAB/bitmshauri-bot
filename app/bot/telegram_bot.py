@@ -1,4 +1,5 @@
-from dotenv import load_dotenv; load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 import os
 import logging
 from telegram import Update, ReplyKeyboardMarkup
@@ -15,6 +16,7 @@ import random
 import requests
 from datetime import datetime, timedelta
 from app.database import get_user_by_id
+import pytz  # Add this import at the top
 
 # Configure logging
 logging.basicConfig(
@@ -203,6 +205,11 @@ async def handle_quiz_answer(update: Update, context: CallbackContext):
                          ("💪", "Endelea kujifunza, utafanikiwa!")
         result = (
             f"{emoji} *Umeshinda Jaribio!*\n\n"
+            f"Alama zako: {score}/{total} ({percentage}%)\n{message}"
+        )
+        await update.message.reply_text(result, reply_markup=create_menu(), parse_mode="Markdown")
+        del user_quiz_state[user_id]
+
 async def send_daily_tip(bot, user_id, chat_id):
     # This is a helper for the main scheduler to avoid code duplication
     try:
@@ -212,7 +219,6 @@ async def send_daily_tip(bot, user_id, chat_id):
         logger.info(f"Sent tip to user {user_id}")
     except Exception as e:
         logger.error(f"Failed to send tip to user {user_id}: {e}")
-
 
 async def scheduled_tip_job(context: CallbackContext):
     logger.info("Running scheduled daily tips job...")
@@ -232,14 +238,6 @@ async def ask_for_feedback(update: Update, context: CallbackContext):
     )
     context.user_data["awaiting_feedback"] = True
 
-
-# --- Main Message Handler ---
-async def handle_message(update: Update, context: CallbackContext):
-    user = update.effective_user
-    text = update.message.text
-    update_user(user, update.effective_chat.id)
-    )
-    context.user_data["awaiting_feedback"] = True
 
 # --- Main Message Handler ---
 async def handle_message(update: Update, context: CallbackContext):
@@ -299,6 +297,13 @@ async def handle_message(update: Update, context: CallbackContext):
     if text in responses:
         await responses[text](update, context)
     else:
+        await update.message.reply_text(
+            "Samahani, sijakuelewa. Tafadhali chagua moja ya chaguo kwenye menyu."
+        )
+
+
+
+# --- Bot Initialization ---
 def init_bot():
     try:
         application = Application.builder().token(os.getenv("TELEGRAM_TOKEN")).build()
@@ -310,7 +315,13 @@ def init_bot():
         
         # Schedule daily tips
         job_queue = application.job_queue
-        job_queue.run_daily(scheduled_tip_job, time=datetime.strptime('09:00', '%H:%M').time())
+        nairobi_tz = pytz.timezone("Africa/Nairobi")  # Use your local timezone
+        job_queue.run_daily(
+            scheduled_tip_job,
+            time=datetime.strptime('09:00', '%H:%M').time(),
+            days=(0, 1, 2, 3, 4, 5, 6),
+            timezone=nairobi_tz
+        )
         
         logger.info("Telegram bot initialized successfully")
         return application

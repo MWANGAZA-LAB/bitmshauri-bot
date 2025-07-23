@@ -1,6 +1,7 @@
 venv/
 .env
-*.db
+bitmshauri.db
 __pycache__/
 *.pyc
 *.log
+.vscode/
