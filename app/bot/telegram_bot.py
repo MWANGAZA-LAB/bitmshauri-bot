@@ -223,14 +223,12 @@ async def send_daily_tip(bot, user_id, chat_id):
 
 async def scheduled_tip_job(context: CallbackContext):
     logger.info("Running scheduled daily tips job...")
-    users = get_all_users() # Assuming this returns (user_id, chat_id, last_tip_timestamp)
+    users = get_all_users()
     if not users:
         logger.info("No users found to send tips to.")
         return
 
     for user_id, chat_id, last_tip_str in users:
-        # Add logic to check if a tip should be sent (e.g., not in the last 23 hours)
-        # For now, we will send to all for simplicity of testing.
         await send_daily_tip(context.bot, user_id, chat_id)
         logger.info("No users found to send tips to.")
         
@@ -283,10 +281,11 @@ async def handle_message(update: Update, context: CallbackContext):
         "📝 Toa Maoni": lambda u, c: ask_for_feedback(u, c),
     }
     if text == "❓ Maswali Mengine":
-        await update.message.reply_text(
-            LESSONS['maswali_mengine']['content'],
-            parse_mode="Markdown"
-        )
+        if update.message:
+            await update.message.reply_text(
+                LESSONS['maswali_mengine']['content'],
+                parse_mode="Markdown"
+            )
         context.user_data["awaiting_ai_question"] = True
         return
 
@@ -299,9 +298,10 @@ async def handle_message(update: Update, context: CallbackContext):
     if text in responses:
         await responses[text](update, context)
     else:
-        await update.message.reply_text(
-            "Samahani, sijakuelewa. Tafadhali chagua moja ya chaguo kwenye menyu."
-        )
+        if update.message:
+            await update.message.reply_text(
+                "Samahani, sijakuelewa. Tafadhali chagua moja ya chaguo kwenye menyu."
+            )
 
 
 
@@ -309,24 +309,23 @@ async def handle_message(update: Update, context: CallbackContext):
 def init_bot():
     try:
         application = Application.builder().token(os.getenv("TELEGRAM_TOKEN")).build()
-        
-        # Register handlers
         application.add_handler(CommandHandler("start", start))
         application.add_handler(CommandHandler("health", health))
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-        
 
-        
+        # Schedule daily tips using Telegram JobQueue
+        application.job_queue.run_daily(
+            scheduled_tip_job,
+            time=datetime.strptime('09:00', '%H:%M').time(),
+            days=(0, 1, 2, 3, 4, 5, 6)
+        )
+
         logger.info("Telegram bot initialized successfully")
         return application
-    
+
     except Exception as e:
         logger.error(f"Failed to initialize bot: {e}")
         raise
 
 
 bot_app = init_bot()
-
-job_queue = BackgroundScheduler()
-job_queue.add_job(scheduled_tip_job, 'interval', hours=24)
-job_queue.start()
