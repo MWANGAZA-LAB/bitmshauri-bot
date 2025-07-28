@@ -2,6 +2,27 @@ LESSONS = {
     "intro": {
         "content": "Habari! Mimi ni BitMshauri, msaidizi wako wa Bitcoin kwa Kiswahili. Chagua moja ya chaguo hapa chini:"
     },
+    "kwa_nini_bitcoin": {
+        "content": (
+            "🌍 *Kwa Nini Utumie Bitcoin?*\n\n"
+            "Watu wengi hawajui kwanini Bitcoin ni muhimu. Hapa kuna sababu kuu:\n\n"
+            "🔐 *Uhuru wa Fedha:*\n"
+            "- Bitcoin haidhibitiwi na benki au serikali\n"
+            "- Wewe pekee unadhibiti pesa zako\n\n"
+            "💸 *Malipo ya Haraka na Nafuu:*\n"
+            "- Tuma pesa kwa mtu yeyote duniani papo hapo\n"
+            "- Gharama ni ndogo sana ukilinganisha na benki au M-Pesa\n\n"
+            "📉 *Ulinzi dhidi ya mfumuko wa bei:*\n"
+            "- Bitcoin haitolewi kiholela kama sarafu za kawaida\n"
+            "- Ni 21 milioni tu zitawahi kuwepo\n\n"
+            "📱 *Ufikiaji kwa Wote:*\n"
+            "- Hata ukiwa kijijini, unaweza kutumia Bitcoin na simu ya mkononi\n\n"
+            "🧠 *Faida kwa Wafanya Biashara na Vijana:*\n"
+            "- Unaweza kuuza bidhaa mtandaoni na kulipwa kwa Bitcoin\n"
+            "- Unaweza kupata kazi za mtandaoni na kulipwa bila akaunti ya benki\n\n"
+            "_Bitcoin ni njia mpya ya kifedha, inayokupa uhuru, usalama, na uwezo wa kushiriki katika uchumi wa kidijitali._"
+        )
+    },
     "bitcoin_ni_nini": {
         "content": (
             "💰 *Bitcoin ni nini?*\n"
@@ -26,7 +47,7 @@ LESSONS = {
             "👛 *Jinsi ya kufungua pochi ya Bitcoin na mifano:*\n"
             "Chagua aina ya pochi:\n"
             "🔥 *Hot wallet* (mtandaoni): Rahisi kutumia lakini yenye hatari zaidi\n"
-            "   - Mifano: Exodus, Electrum, Blockchain.com\n"
+            "   - Mifano: Exodus, Electrum, Blockchain.com, Tando\n"
             "❄️ *Cold wallet* (nje ya mtandao): Salama zaidi\n"
             "   - Mifano: Ledger Nano S/X, Trezor, Bitkey\n\n"
             "Hatua za kufungua:\n"
@@ -76,7 +97,7 @@ LESSONS = {
     "mfano_matumizi": {
         "content": (
             "📱 *Mifano jinsi wallet inavyotumika:*\n"
-            "1. Fungua programu ya pochi (Exodus, Electrum, n.k)\n"
+            "1. Fungua programu ya pochi (Exodus, Electrum, Tando, n.k)\n"
             "2. Chagua 'Tuma'\n"
             "3. Weka anwani ya mpokeaji\n"
             "4. Weka kiasi unachotuma\n"
@@ -118,11 +139,26 @@ LESSONS = {
             "   - Inatumia mikataba nje ya blockchain kuongeza uwezo"
         )
     },
+    "mpesa_guide": {
+        "content": (
+            "📱 *Kununua Bitcoin kwa M-Pesa:*\n"
+            "1. Nenda bitsacco.com, fedi.xyz, bitika.xyz au tando.africa\n"
+            "2. Tafuta muuzaji mwenye rating nzuri\n"
+            "3. Chagua 'Nunua kwa M-Pesa'\n"
+            "4. Fuata maelekezo kwenye skrini\n"
+            "5. Tuma pesa kwa namba ya muuzaji\n"
+            "6. Thibitisha kupokea Bitcoin kwenye pochi yako\n\n"
+            "💡 *Vidokezo Muhimu:*\n"
+            "   - Hakikisha anwani ya pochi ni sahihi\n"
+            "   - Kamwe usitoae pesa kabla ya kupokea Bitcoin\n"
+            "   - Tumia 2FA kwa usalama\n"
+        )
+    },
     "maswali_mengine": {
         "content": (
             "❓ *Maswali Yanayoulizwa Mara kwa Mara:*\n"
             "1. *Nawezaje kununua Bitcoin kwa M-Pesa?*\n"
-            "   - Tumia bitsacco.com au bitika.xyz\n"
+            "   - Tumia bitsacco.com, bitika.xyz au tando.africa\n"
             "   - Chagua muuzaji mwenye tathmini nzuri\n\n"
             "2. *Je, Bitcoin ni halali Kenya?*\n"
             "   - Ndio, lakini sio sarafu rasmi\n"
@@ -144,22 +180,9 @@ LESSONS = {
             "   - Mtandao wa Bitcoin ni salama, lakini pochi yako inaweza kudukuliwa kama hujalinda vizuri\n\n"
             "10. *Ninawezaje kupata Bitcoin bila kununua?*\n"
             "   - Unaweza kufanya kazi mtandaoni na kulipwa kwa Bitcoin, au kupata zawadi (airdrops)\n\n"
+            "11. *Tando ni nini na ninawezaje kuitumia?*\n"
+            "   - Tando ni pochi ya Bitcoin inayorahisisha kutuma na kupokea Bitcoin kwa urahisi. Nenda tando.africa, jisajili, na fuata maelekezo kuweka au kutoa Bitcoin.\n\n"
             "Je, una swali lingine? Andika hapa chini na nitakujibu moja kwa moja!"
-        )
-    },
-    "mpesa_guide": {
-        "content": (
-            "📱 *Kununua Bitcoin kwa M-Pesa:*\n"
-            "1. Nenda bitsacco.com, fedi.xyz au bitika.xyz\n"
-            "2. Tafuta muuzaji mwenye rating nzuri\n"
-            "3. Chagua 'Nunua kwa M-Pesa'\n"
-            "4. Fuata maelekezo kwenye skrini\n"
-            "5. Tuma pesa kwa namba ya muuzaji\n"
-            "6. Thibitisha kupokea Bitcoin kwenye pochi yako\n\n"
-            "💡 *Vidokezo Muhimu:*\n"
-            "   - Hakikisha anwani ya pochi ni sahihi\n"
-            "   - Kamwe usitoae pesa kabla ya kupokea Bitcoin\n"
-            "   - Tumia 2FA kwa usalama\n"
         )
     },
     "kuhusu_bitmshauri": {
@@ -172,7 +195,7 @@ LESSONS = {
     }
 }
 
-# Quiz questions
+# Quiz questions - enhanced
 QUIZZES = {
     "msingi": [
         {
@@ -202,6 +225,17 @@ QUIZZES = {
             ],
             "answer": 2,
             "explanation": "Bitcoin haina mamlaka kuu; inaendeshwa na mtandao wa kompyuta duniani kote."
+        },
+        {
+            "question": "Ni kipi kati ya hivi ni faida kuu ya Bitcoin?",
+            "options": [
+                "Inatolewa na serikali",
+                "Inahitaji benki kukamilisha miamala",
+                "Inatoa uhuru wa kifedha bila mamlaka ya kati",
+                "Ina bei isiyobadilika"
+            ],
+            "answer": 2,
+            "explanation": "Bitcoin inatoa uhuru wa kifedha kwa kutokutegemea benki au serikali."
         }
     ],
     "usalama": [
@@ -215,30 +249,54 @@ QUIZZES = {
             ],
             "answer": 2,
             "explanation": "Seed phrase ni kitu muhimu zaidi. Ihifadhi kwenye karatasi au chuma iliyosimbwa, sio mtandaoni."
+        },
+        {
+            "question": "Unapoteza seed phrase yako, nini kinachotokea?",
+            "options": [
+                "Unaweza kuomba mpya kwa kampuni ya Bitcoin",
+                "Bitcoin zako zitapotea kabisa",
+                "Benki itakusaidia",
+                "Unaweza kurejesha kwa kutumia jina lako"
+            ],
+            "answer": 1,
+            "explanation": "Bila seed phrase, Bitcoin zako zitapotea kabisa. Hakuna njia ya kuzirejesha."
         }
     ]
 }
 
-# Daily Bitcoin tips
+# Daily Bitcoin tips - cleaned and enhanced
 DAILY_TIPS = [
     "📌 Kidokezo: Usishiriki seed phrase yako kwa mtu yeyote!",
     "📌 Kidokezo: Bitcoin ina idadi ndogo ya sarafu - 21 milioni tu zitapatikana!",
     "📌 Kidokezo: Nunua Bitcoin kidogo kidogo kila mwezi (dollar cost averaging)",
-    "📌 Kidokezo: Hakikisha unatumia 2FA kwenye akaunti zako za kubitcoin",
+    "📌 Kidokezo: Hakikisha unatumia 2FA kwenye akaunti zako za Bitcoin",
     "📌 Kidokezo: Kamwe usitoae pesa kabla ya kupokea Bitcoin katika miamala ya P2P",
-    "📌 Kidokezo: Thibitisha anwani ya pochi kabla ya kutuma bitcoin",
+    "📌 Kidokezo: Thibitisha anwani ya pochi kabla ya kutuma Bitcoin",
     "📌 Kidokezo: Fanya backup ya pochi yako mara kwa mara",
     "📌 Kidokezo: Elewa hatari kabla ya kuwekeza",
-    "📌 Kidokezo: Bitcoin sio bahati nasibu - ni mfumo wa thamani ya muda mrefu"
+    "📌 Kidokezo: Bitcoin sio bahati nasibu - ni mfumo wa thamani ya muda mrefu",
+    "📌 Kidokezo: Tumia hardware wallet kwa kiasi kikubwa cha Bitcoin",
+    "📌 Kidokezo: Jihadharini na watu wanaodai kufanya maajabu ya Bitcoin",
+    "📌 Kidokezo: Lightning Network inarahisisha malipo ya haraka na nafuu",
+    "📌 Kidokezo: Kumbuka: Not your keys, not your Bitcoin!",
+    "📌 Kidokezo: Jifunze kuhusu teknolojia kabla ya kuwekeza kiasi kikubwa",
+    "📌 Kidokezo: Tando ni pochi rahisi ya Bitcoin - jaribu kwa mafunzo!",
+    "📌 Kidokezo: Epuka watu wanaodai kurudi mara mbili Bitcoin zako haraka",
+    "📌 Kidokezo: Bitcoin ni haraka kuliko miamala ya kimataifa ya benki",
+    "📌 Kidokezo: Unaweza kutuma Bitcoin hata siku za likizo - mtandao hauanguki",
+    "📌 Kidokezo: Pochi ya Bitcoin ni kama akaunti ya benki ambayo wewe pekee unaidhibiti",
+    "📌 Kidokezo: Soma habari za Bitcoin kila siku kujua mabadiliko mapya"
 ]
 
+# Main menu keyboard - enhanced with logical flow
 MENU_KEYBOARD = [
-    ["📚 Bitcoin ni nini?", "💰 Bei ya Bitcoin"],
-    ["🛒 Nunua Bitcoin"],
+    ["🌍 Kwa Nini Bitcoin?", "📚 Bitcoin ni nini?"],
+    ["💰 Bei ya Bitcoin", "🛒 Nunua Bitcoin"],
     ["📝 Toa Maoni"],
     ["ℹ️ Msaada Zaidi"]
 ]
 
+# Secondary menu keyboard - fixed and cleaned
 SECONDARY_MENU_KEYBOARD = [
     ["🔗 P2P Inafanyaje", "👛 Aina za Pochi"],
     ["🔒 Usalama wa Pochi", "⚠️ Kupoteza Ufunguo"],
@@ -246,4 +304,52 @@ SECONDARY_MENU_KEYBOARD = [
     ["🔐 Teknolojia ya Blockchain", "❓ Maswali Mengine"],
     ["📝 Jaribio la Bitcoin", "💡 Kidokezo cha Leo"],
     ["⬅️ Rudi Mwanzo"]
+]
+
+# Voice menu keyboard for audio lessons
+VOICE_MENU_KEYBOARD = [
+    ["🔊 Bitcoin ni nini?", "🔊 P2P Inafanyaje"],
+    ["🔊 Aina za Pochi", "🔊 Usalama wa Pochi"],
+    ["🔊 Blockchain", "🔊 Maswali Mengine"],
+    ["⬅️ Rudi Mwanzo"]
+]
+
+# Purchase platform information
+PURCHASE_PLATFORMS = {
+    "Bitika": {
+        "url": "bitika.xyz",
+        "description": "Jukwaa la kununua na kuuza Bitcoin kwa M-Pesa",
+        "features": ["M-Pesa", "Haraka", "Rahisi"]
+    },
+    "Bitsacco": {
+        "url": "bitsacco.com", 
+        "description": "Jukwaa la P2P la Bitcoin kwa wafanya biashara",
+        "features": ["P2P", "Tathmini", "Usalama"]
+    },
+    "Fedi": {
+        "url": "fedi.xyz",
+        "description": "Pochi ya jamii ya Bitcoin",
+        "features": ["Jamii", "Lightning", "Rahisi"]
+    },
+    "Tando": {
+        "url": "tando.africa",
+        "description": "Pochi rahisi ya Bitcoin ya Afrika",
+        "features": ["Afrika", "Rahisi", "Mobile"]
+    }
+}
+
+# Lesson flow order for progressive learning
+LESSON_FLOW = [
+    "kwa_nini_bitcoin",      # 1. Why care?
+    "bitcoin_ni_nini",       # 2. What is Bitcoin?
+    "p2p_inafanyaje",        # 3. How it works
+    "kufungua_pochi",        # 4. Opening a wallet
+    "tofauti_pochi",         # 5. Wallet differences
+    "usalama_pochi",         # 6. Wallet security
+    "kupoteza_ufunguo",      # 7. Losing keys consequences
+    "mfano_matumizi",        # 8. Usage examples
+    "faida_na_hatari",       # 9. Benefits and risks
+    "blockchain_usalama",    # 10. Blockchain technology
+    "mpesa_guide",           # 11. Buy with M-Pesa
+    "maswali_mengine"        # 12. FAQ
 ]

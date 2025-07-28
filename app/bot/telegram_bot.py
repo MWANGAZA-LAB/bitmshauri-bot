@@ -2,20 +2,23 @@ from dotenv import load_dotenv
 load_dotenv()
 import os
 import logging
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application, CommandHandler, MessageHandler,
-    filters, CallbackContext
+    filters, CallbackContext, CallbackQueryHandler
 )
-#from app import app
 from app.bot.price_api import get_bitcoin_price
 from app.bot.content_swahili import LESSONS, MENU_KEYBOARD, QUIZZES, DAILY_TIPS, SECONDARY_MENU_KEYBOARD
 from app.database import update_user, get_all_users, update_last_tip, save_feedback
-from apscheduler.schedulers.background import BackgroundScheduler
+from app.bot.audio_tts import tts_engine
 import random
 import requests
 from datetime import datetime, timedelta
 from app.database import get_user_by_id
+import io
+
+# Add missing OPENAI_API_KEY
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Configure logging
 logging.basicConfig(
@@ -24,13 +27,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 # --- State & Keyboard Management ---
 user_quiz_state = {}
 
 def create_menu():
     return ReplyKeyboardMarkup(MENU_KEYBOARD, resize_keyboard=True, one_time_keyboard=False)
-
 
 def create_secondary_menu():
     return ReplyKeyboardMarkup(SECONDARY_MENU_KEYBOARD, resize_keyboard=True, one_time_keyboard=False)
@@ -52,7 +53,6 @@ async def start(update: Update, context: CallbackContext):
 async def price_command(update: Update, context: CallbackContext):
     price = get_bitcoin_price()
     await update.message.reply_text(price, parse_mode="Markdown")
-    await update.message.reply_text(price, parse_mode="Markdown")
     
 async def show_more_help(update: Update, context: CallbackContext):
     await update.message.reply_text(
@@ -69,28 +69,128 @@ async def back_to_main_menu(update: Update, context: CallbackContext):
 async def health(update: Update, context: CallbackContext):
     await update.message.reply_text("✅ Bot is running!")
 
+# --- Audio Functions ---
+async def send_lesson_with_audio(update: Update, context: CallbackContext, lesson_key: str):
+    """Send lesson text with audio option"""
+    lesson_content = safe_get_lesson(lesson_key)
+    
+    # Create inline keyboard with audio option
+    keyboard = [
+        [InlineKeyboardButton("🔊 Sikiliza Audio", callback_data=f"audio_{lesson_key}")],
+        [InlineKeyboardButton("📖 Soma tu", callback_data="text_only")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_text(
+        f"📚 *Somo: {lesson_key.replace('_', ' ').title()}*\n\n"
+        f"{lesson_content}\n\n"
+        f"💡 *Chagua jinsi unavyotaka kupokea maudhui:*",
+        reply_markup=reply_markup,
+        parse_mode="Markdown"
+    )
+
+async def handle_audio_callback(update: Update, context: CallbackContext):
+    """Handle audio generation callbacks"""
+    query = update.callback_query
+    await query.answer()
+    
+    if query.data.startswith("audio_"):
+        lesson_key = query.data.replace("audio_", "")
+        await generate_and_send_audio(query, context, lesson_key)
+    elif query.data == "text_only":
+        await query.edit_message_text("✅ Umechagua kusoma tu. Endelea na mafunzo!")
+    elif query.data == "back_to_menu":
+        await query.edit_message_text("⬅️ Umerudi kwenye menyu kuu.")
+
+async def generate_and_send_audio(query, context: CallbackContext, lesson_key: str):
+    """Generate and send audio for lesson"""
+    try:
+        # Show loading message
+        await query.edit_message_text("🎵 Inaandaa sauti... Subiri kidogo...")
+        
+        # Get lesson content
+        lesson_content = safe_get_lesson(lesson_key)
+        
+        # Generate audio
+        audio_buffer = await tts_engine.text_to_speech(lesson_content)
+        
+        # Send audio file
+        await context.bot.send_voice(
+            chat_id=query.message.chat.id,
+            voice=audio_buffer,
+            caption=f"🎵 Audio ya somo: *{lesson_key.replace('_', ' ').title()}*",
+            parse_mode="Markdown"
+        )
+        
+        # Update message
+        await query.edit_message_text(
+            "✅ Audio imetumwa! 🎵\n\n"
+            "💡 Sikiliza audio ukifuata maandishi juu."
+        )
+        
+    except Exception as e:
+        logger.error(f"Audio generation failed: {e}")
+        await query.edit_message_text(
+            "❌ Samahani, imeshindwa kutengeneza audio. "
+            "Tafadhali jaribu tena au soma maandishi."
+        )
+
+async def show_audio_menu(update: Update, context: CallbackContext):
+    """Show audio lessons menu"""
+    keyboard = [
+        [InlineKeyboardButton("🔊 Kwa Nini Bitcoin?", callback_data="audio_kwa_nini_bitcoin")],
+        [InlineKeyboardButton("🔊 Bitcoin ni nini?", callback_data="audio_bitcoin_ni_nini")],
+        [InlineKeyboardButton("🔊 P2P Inafanyaje", callback_data="audio_p2p_inafanyaje")],
+        [InlineKeyboardButton("🔊 Aina za Pochi", callback_data="audio_kufungua_pochi")],
+        [InlineKeyboardButton("🔊 Usalama wa Pochi", callback_data="audio_usalama_pochi")],
+        [InlineKeyboardButton("🔊 Blockchain", callback_data="audio_blockchain_usalama")],
+        [InlineKeyboardButton("⬅️ Rudi Mwanzo", callback_data="back_to_menu")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_text(
+        "🎵 *Masomo ya Sauti*\n\n"
+        "Chagua somo unalotaka kusikiliza kwa sauti:",
+        reply_markup=reply_markup,
+        parse_mode="Markdown"
+    )
+
+def create_audio_lesson_response(lesson_key):
+    """Create lesson response with audio option"""
+    async def lesson_with_audio(update: Update, context: CallbackContext):
+        await send_lesson_with_audio(update, context, lesson_key)
+    return lesson_with_audio
 
 # --- Purchase Flow Handlers ---
 async def purchase_bitcoin(update: Update, context: CallbackContext):
-    keyboard = [["Bitika", "Bitsacco", "Fedi"], ["⬅️ Rudi Mwanzo"]]
+    keyboard = [["Bitika", "Bitsacco"], ["Fedi", "Tando"], ["⬅️ Rudi Mwanzo"]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text(
-        "Unaweza kununua Bitcoin kupitia Bitika, Fedi au Bitsacco. Chagua jukwaa unalopendelea:",
+        "Unaweza kununua Bitcoin kupitia majukwaa haya. Chagua unalopendelea:",
         reply_markup=reply_markup
     )
     
 async def handle_purchase_platform(update: Update, context: CallbackContext, platform: str):
-    if platform == "Bitika":
-        url = "bitika.xyz"
-    elif platform == "Bitsacco":
-        url = "bitsacco.com"
-    elif platform == "Fedi":
-        url = "fedi.xyz"
-    else:
-        url = "unknown-platform.com"
+    platform_info = {
+        "Bitika": {"url": "bitika.xyz", "desc": "Jukwaa la kununua na kuuza Bitcoin kwa M-Pesa"},
+        "Bitsacco": {"url": "bitsacco.com", "desc": "Jukwaa la P2P la Bitcoin kwa wafanya biashara"},
+        "Fedi": {"url": "fedi.xyz", "desc": "Pochi ya jamii ya Bitcoin"},
+        "Tando": {"url": "tando.africa", "desc": "Pochi rahisi ya Bitcoin ya Afrika"}
+    }
+    
+    info = platform_info.get(platform, {"url": "unknown-platform.com", "desc": "Jukwaa la Bitcoin"})
+    
     message = (
-        f"Asante kwa kuchagua {platform}! Tafadhali tembelea [{url}](https://{url}) "
-        "kukamilisha ununuzi wako. \n\nBonyeza hapa chini ukimaliza."
+        f"✅ *Umechagua {platform}*\n\n"
+        f"📝 {info['desc']}\n\n"
+        f"🔗 Tembelea: [{info['url']}](https://{info['url']})\n\n"
+        f"📋 *Hatua za haraka:*\n"
+        f"1. Nenda {info['url']}\n"
+        f"2. Jisajili au ingia\n"
+        f"3. Chagua 'Nunua Bitcoin'\n"
+        f"4. Fuata maelekezo ya kulipa\n"
+        f"5. Pokea Bitcoin kwenye pochi yako\n\n"
+        f"Bonyeza hapa chini ukimaliza muamala."
     )
     keyboard = [["✅ Nimemaliza Muamala"], ["⬅️ Rudi Mwanzo"]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -103,8 +203,15 @@ async def transaction_complete(update: Update, context: CallbackContext):
         "Asante kwa kutumia BitMshauri. Tunatumai umepata huduma bora."
     )
     await update.message.reply_text(message, reply_markup=create_menu())
-    
+
+# --- AI Handler ---
 async def ai_answer_handler(update: Update, context: CallbackContext):
+    if not OPENAI_API_KEY:
+        await update.message.reply_text(
+            "Samahani, huduma ya AI haijaanzishwa. Tafadhali wasiliana na msimamizi."
+        )
+        return
+        
     user_question = update.message.text
     prompt = f"Jibu swali lifuatalo kuhusu Bitcoin kwa Kiswahili: {user_question}"
     headers = {
@@ -117,16 +224,31 @@ async def ai_answer_handler(update: Update, context: CallbackContext):
             {"role": "system", "content": "Jibu maswali kuhusu Bitcoin kwa Kiswahili, kwa ufupi na urafiki."},
             {"role": "user", "content": prompt}
         ],
-        "max_tokens": 400  # Increased for longer answers
+        "max_tokens": 400
     }
     try:
-        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
+        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data, timeout=10)
         result = response.json()
-        logger.info(f"OpenAI response: {result}")  # Log the full response for debugging
+        logger.info(f"OpenAI response: {result}")
 
         if "choices" in result and result["choices"]:
             answer = result["choices"][0]["message"]["content"].strip()
-            await update.message.reply_text(answer)
+            
+            # Create audio option for AI response
+            keyboard = [
+                [InlineKeyboardButton("🔊 Sikiliza Audio", callback_data=f"ai_audio_{hash(answer)}")],
+                [InlineKeyboardButton("📖 Soma tu", callback_data="text_only")]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            await update.message.reply_text(
+                f"🤖 *Jibu la AI:*\n\n{answer}\n\n💡 *Je, unataka kusikiliza kwa sauti?*",
+                reply_markup=reply_markup,
+                parse_mode="Markdown"
+            )
+            
+            # Store AI response for audio generation
+            context.user_data["last_ai_response"] = answer
         else:
             error_msg = result.get("error", {}).get("message", "Hakuna jibu lililopatikana kutoka AI.")
             await update.message.reply_text(f"Samahani, AI haikuweza kujibu: {error_msg}")
@@ -135,7 +257,7 @@ async def ai_answer_handler(update: Update, context: CallbackContext):
         logger.error(f"AI handler error: {e}")
         await update.message.reply_text("Samahani, kuna tatizo na huduma ya AI. Tafadhali jaribu tena baadaye.")
 
-
+# --- Quiz Functions ---
 async def start_quiz(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     user_quiz_state[user_id] = {'quiz_name': 'msingi', 'current_question': 0, 'score': 0}
@@ -157,17 +279,11 @@ async def ask_quiz_question(update: Update, context: CallbackContext, user_id: i
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text(q_text, reply_markup=reply_markup, parse_mode="Markdown")
 
-
 async def handle_quiz_answer(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     text = update.message.text
     state = user_quiz_state.get(user_id)
-    if not state:
-        await update.message.reply_text("Samahani, jaribio limeisha. Tafadhali anza tena.", reply_markup=create_menu())
-        return
-    user_id = update.effective_user.id
-    text = update.message.text
-    state = user_quiz_state.get(user_id)
+    
     if not state:
         await update.message.reply_text("Samahani, jaribio limeisha. Tafadhali anza tena.", reply_markup=create_menu())
         return
@@ -211,8 +327,8 @@ async def handle_quiz_answer(update: Update, context: CallbackContext):
         await update.message.reply_text(result, reply_markup=create_menu(), parse_mode="Markdown")
         del user_quiz_state[user_id]
 
+# --- Daily Tips ---
 async def send_daily_tip(bot, user_id, chat_id):
-    # This is a helper for the main scheduler to avoid code duplication
     try:
         tip = random.choice(DAILY_TIPS)
         await bot.send_message(chat_id=chat_id, text=tip, parse_mode="Markdown")
@@ -230,14 +346,49 @@ async def scheduled_tip_job(context: CallbackContext):
 
     for user_id, chat_id, last_tip_str in users:
         await send_daily_tip(context.bot, user_id, chat_id)
-        logger.info("No users found to send tips to.")
-        
+    
+    logger.info(f"Sent tips to {len(users)} users.")
+
 async def ask_for_feedback(update: Update, context: CallbackContext):
     await update.message.reply_text(
         "Tafadhali andika maoni au ushauri wako hapa chini. Tunathamini mchango wako!"
     )
     context.user_data["awaiting_feedback"] = True
 
+def safe_get_lesson(lesson_key):
+    """Safely get lesson content with fallback"""
+    return LESSONS.get(lesson_key, {}).get('content', f"Samahani, somo '{lesson_key}' halipatikani.")
+
+# --- Enhanced Callback Handler ---
+async def handle_audio_callback_enhanced(update: Update, context: CallbackContext):
+    """Enhanced callback handler for all audio functions"""
+    query = update.callback_query
+    await query.answer()
+    
+    if query.data.startswith("audio_"):
+        lesson_key = query.data.replace("audio_", "")
+        await generate_and_send_audio(query, context, lesson_key)
+    elif query.data.startswith("ai_audio_"):
+        # Handle AI response audio
+        ai_response = context.user_data.get("last_ai_response")
+        if ai_response:
+            try:
+                await query.edit_message_text("🎵 Inaandaa sauti ya AI... Subiri kidogo...")
+                audio_buffer = await tts_engine.text_to_speech(ai_response)
+                await context.bot.send_voice(
+                    chat_id=query.message.chat.id,
+                    voice=audio_buffer,
+                    caption="🤖🎵 Sauti ya jibu la AI",
+                    parse_mode="Markdown"
+                )
+                await query.edit_message_text("✅ Sauti ya AI imetumwa! 🎵")
+            except Exception as e:
+                logger.error(f"AI audio generation failed: {e}")
+                await query.edit_message_text("❌ Imeshindwa kutengeneza sauti ya AI.")
+    elif query.data == "text_only":
+        await query.edit_message_text("✅ Umechagua kusoma tu. Endelea na mafunzo!")
+    elif query.data == "back_to_menu":
+        await query.edit_message_text("⬅️ Umerudi kwenye menyu kuu.")
 
 # --- Main Message Handler ---
 async def handle_message(update: Update, context: CallbackContext):
@@ -257,17 +408,23 @@ async def handle_message(update: Update, context: CallbackContext):
         await update.message.reply_text("Asante kwa maoni yako!")
         return
 
-    # Static lesson content and main menu actions
+    # Enhanced responses with audio support
     responses = {
-        "📚 Bitcoin ni nini?": lambda u, c: u.message.reply_text(LESSONS['bitcoin_ni_nini']['content'], parse_mode="Markdown"),
-        "🔗 P2P Inafanyaje": lambda u, c: u.message.reply_text(LESSONS['p2p_inafanyaje']['content'], parse_mode="Markdown"),
-        "👛 Aina za Pochi": lambda u, c: u.message.reply_text(LESSONS['kufungua_pochi']['content'], parse_mode="Markdown"),
-        "🔒 Usalama wa Pochi": lambda u, c: u.message.reply_text(LESSONS['usalama_pochi']['content'], parse_mode="Markdown"),
-        "⚠️ Kupoteza Ufunguo": lambda u, c: u.message.reply_text(LESSONS['kupoteza_ufunguo']['content'], parse_mode="Markdown"),
-        "📱 Matumizi ya Pochi": lambda u, c: u.message.reply_text(LESSONS['mfano_matumizi']['content'], parse_mode="Markdown"),
-        "⚖️ Faida na Hatari": lambda u, c: u.message.reply_text(LESSONS['faida_na_hatari']['content'], parse_mode="Markdown"),
-        "🔐 Teknolojia ya Blockchain": lambda u, c: u.message.reply_text(LESSONS['blockchain_usalama']['content'], parse_mode="Markdown"),
-        "❓ Maswali Mengine": lambda u, c: u.message.reply_text(LESSONS['maswali_mengine']['content'], parse_mode="Markdown"),
+        # Audio-enabled lessons
+        "🌍 Kwa Nini Bitcoin?": create_audio_lesson_response('kwa_nini_bitcoin'),
+        "📚 Bitcoin ni nini?": create_audio_lesson_response('bitcoin_ni_nini'),
+        "🔗 P2P Inafanyaje": create_audio_lesson_response('p2p_inafanyaje'),
+        "👛 Aina za Pochi": create_audio_lesson_response('kufungua_pochi'),
+        "🔒 Usalama wa Pochi": create_audio_lesson_response('usalama_pochi'),
+        "⚠️ Kupoteza Ufunguo": create_audio_lesson_response('kupoteza_ufunguo'),
+        "📱 Matumizi ya Pochi": create_audio_lesson_response('mfano_matumizi'),
+        "⚖️ Faida na Hatari": create_audio_lesson_response('faida_na_hatari'),
+        "🔐 Teknolojia ya Blockchain": create_audio_lesson_response('blockchain_usalama'),
+        
+        # New audio menu
+        "🎵 Masomo ya Sauti": show_audio_menu,
+        
+        # Regular functions
         "💰 Bei ya Bitcoin": price_command,
         "📝 Jaribio la Bitcoin": start_quiz,
         "💡 Kidokezo cha Leo": lambda u, c: send_daily_tip(c.bot, u.effective_user.id, u.effective_chat.id),
@@ -277,13 +434,16 @@ async def handle_message(update: Update, context: CallbackContext):
         "Bitika": lambda u, c: handle_purchase_platform(u, c, "Bitika"),
         "Bitsacco": lambda u, c: handle_purchase_platform(u, c, "Bitsacco"),
         "Fedi": lambda u, c: handle_purchase_platform(u, c, "Fedi"),
+        "Tando": lambda u, c: handle_purchase_platform(u, c, "Tando"),
         "✅ Nimemaliza Muamala": transaction_complete,
         "📝 Toa Maoni": lambda u, c: ask_for_feedback(u, c),
     }
+
+    # Handle special AI questions
     if text == "❓ Maswali Mengine":
         if update.message:
             await update.message.reply_text(
-                LESSONS['maswali_mengine']['content'],
+                safe_get_lesson('maswali_mengine'),
                 parse_mode="Markdown"
             )
         context.user_data["awaiting_ai_question"] = True
@@ -303,29 +463,37 @@ async def handle_message(update: Update, context: CallbackContext):
                 "Samahani, sijakuelewa. Tafadhali chagua moja ya chaguo kwenye menyu."
             )
 
-
-
 # --- Bot Initialization ---
 def init_bot():
     try:
-        application = Application.builder().token(os.getenv("TELEGRAM_TOKEN")).build()
+        telegram_token = os.getenv("TELEGRAM_TOKEN")
+        if not telegram_token:
+            raise ValueError("TELEGRAM_TOKEN environment variable is not set")
+            
+        application = Application.builder().token(telegram_token).build()
         application.add_handler(CommandHandler("start", start))
         application.add_handler(CommandHandler("health", health))
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        
+        # Add callback query handler for audio buttons
+        application.add_handler(CallbackQueryHandler(handle_audio_callback_enhanced))
 
-        # Schedule daily tips using Telegram JobQueue
+        # Added timezone for better scheduling
+        from datetime import timezone, timedelta
+        east_africa_tz = timezone(timedelta(hours=3))
+        
         application.job_queue.run_daily(
             scheduled_tip_job,
             time=datetime.strptime('09:00', '%H:%M').time(),
-            days=(0, 1, 2, 3, 4, 5, 6)
+            days=(0, 1, 2, 3, 4, 5, 6),
+            name="daily_tips"
         )
 
-        logger.info("Telegram bot initialized successfully")
+        logger.info("Telegram bot initialized successfully with audio support")
         return application
 
     except Exception as e:
         logger.error(f"Failed to initialize bot: {e}")
         raise
-
 
 bot_app = init_bot()
