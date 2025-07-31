@@ -163,34 +163,118 @@ def create_audio_lesson_response(lesson_key):
 
 # --- Purchase Flow Handlers ---
 async def purchase_bitcoin(update: Update, context: CallbackContext):
-    keyboard = [["Bitika", "Bitsacco"], ["Fedi", "Tando"], ["⬅️ Rudi Mwanzo"]]
+    message = (
+        "💰 *Chagua njia ya kupata Bitcoin:*\n\n"
+        "🛒 **KUNUNUA BITCOIN:**\n"
+        "• *Bitika* - Nunua kwa M-Pesa\n"
+        "• *Bitsacco* - P2P marketplace\n\n"
+        "👛 **POCHI ZA BITCOIN:**\n"
+        "• *Blink* - Pochi rahisi\n"
+        "• *Fedi* - Pochi ya jamii\n"
+        "• *Phoenix* - Lightning wallet\n"
+        "• *Wallet of Satoshi* - Custodial wallet\n\n"
+        "💳 **KUTUMIA BITCOIN:**\n"
+        "• *Tando* - Tumia Bitcoin kwa M-Pesa\n\n"
+        "Chagua kategoria unayotaka:"
+    )
+    keyboard = [
+        ["🛒 Nunua Bitcoin", "👛 Pochi za Bitcoin"], 
+        ["💳 Tumia Bitcoin", "⬅️ Rudi Mwanzo"]
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    await update.message.reply_text(message, parse_mode="Markdown", reply_markup=reply_markup)
+    
+async def show_purchase_platforms(update: Update, context: CallbackContext):
+    keyboard = [["Bitika", "Bitsacco"], ["⬅️ Rudi Mwanzo"]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text(
-        "Unaweza kununua Bitcoin kupitia majukwaa haya. Chagua unalopendelea:",
-        reply_markup=reply_markup
+        "🛒 *Majukwaa ya kununua Bitcoin:*\n\nChagua jukwaa unalopendelea:",
+        reply_markup=reply_markup,
+        parse_mode="Markdown"
+    )
+
+async def show_wallet_platforms(update: Update, context: CallbackContext):
+    keyboard = [
+        ["Blink", "Fedi"], 
+        ["Phoenix", "Wallet of Satoshi"], 
+        ["⬅️ Rudi Mwanzo"]
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    await update.message.reply_text(
+        "👛 *Pochi za Bitcoin:*\n\nChagua pochi unayopendelea:",
+        reply_markup=reply_markup,
+        parse_mode="Markdown"
+    )
+
+async def show_spending_platforms(update: Update, context: CallbackContext):
+    keyboard = [["Tando"], ["⬅️ Rudi Mwanzo"]]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    await update.message.reply_text(
+        "💳 *Njia za kutumia Bitcoin:*\n\nChagua huduma unayotaka:",
+        reply_markup=reply_markup,
+        parse_mode="Markdown"
     )
     
 async def handle_purchase_platform(update: Update, context: CallbackContext, platform: str):
     platform_info = {
-        "Bitika": {"url": "bitika.xyz", "desc": "Jukwaa la kununua na kuuza Bitcoin kwa M-Pesa"},
-        "Bitsacco": {"url": "bitsacco.com", "desc": "Jukwaa la P2P la Bitcoin kwa wafanya biashara"},
-        "Fedi": {"url": "fedi.xyz", "desc": "Pochi ya jamii ya Bitcoin"},
-        "Tando": {"url": "tando.africa", "desc": "Pochi rahisi ya Bitcoin ya Afrika"}
+        # Purchase platforms
+        "Bitika": {"url": "bitika.xyz", "desc": "Jukwaa la kununua na kuuza Bitcoin kwa M-Pesa", "type": "purchase"},
+        "Bitsacco": {"url": "bitsacco.com", "desc": "Jukwaa la P2P la Bitcoin kwa wafanya biashara", "type": "purchase"},
+        
+        # Wallet platforms
+        "Blink": {"url": "play.google.com/store/apps/details?id=com.galoyapp&pli=1", "desc": "Pochi ya Bitcoin ya haraka na rahisi", "type": "wallet"},
+        "Fedi": {"url": "fedi.xyz", "desc": "Pochi ya jamii ya Bitcoin", "type": "wallet"},
+        "Phoenix": {"url": "phoenix.acinq.co", "desc": "Pochi ya Lightning ya Bitcoin", "type": "wallet"},
+        "Wallet of Satoshi": {"url": "walletofsatoshi.com", "desc": "Pochi rahisi ya Lightning", "type": "wallet"},
+        
+        # Spending platforms
+        "Tando": {"url": "tando.africa", "desc": "Tumia Bitcoin kwa M-Pesa - kubadilisha Bitcoin kuwa pesa taslimu", "type": "spending"}
     }
     
-    info = platform_info.get(platform, {"url": "unknown-platform.com", "desc": "Jukwaa la Bitcoin"})
+    info = platform_info.get(platform, {"url": "unknown-platform.com", "desc": "Jukwaa la Bitcoin", "type": "unknown"})
+    
+    # Different instructions based on platform type
+    if info["type"] == "purchase":
+        instructions = (
+            "📋 *Hatua za kununua Bitcoin:*\n"
+            f"1. Nenda {info['url']}\n"
+            f"2. Jisajili au ingia\n"
+            f"3. Chagua 'Nunua Bitcoin'\n"
+            f"4. Fuata maelekezo ya kulipa\n"
+            f"5. Pokea Bitcoin kwenye pochi yako\n\n"
+        )
+    elif info["type"] == "wallet":
+        instructions = (
+            "📋 *Hatua za kupata pochi:*\n"
+            f"1. Nenda {info['url']}\n"
+            f"2. Pakua programu au fungua mtandaoni\n"
+            f"3. Tengeneza akaunti mpya\n"
+            f"4. Hifadhi seed phrase kwa usalama\n"
+            f"5. Anza kutuma na kupokea Bitcoin\n\n"
+        )
+    elif info["type"] == "spending":
+        instructions = (
+            "📋 *Hatua za kutumia Bitcoin:*\n"
+            f"1. Nenda {info['url']}\n"
+            f"2. Jisajili na akaunti yako\n"
+            f"3. Unganisha pochi yako ya Bitcoin\n"
+            f"4. Badilisha Bitcoin kuwa M-Pesa\n"
+            f"5. Tumia kama pesa za kawaida\n\n"
+        )
+    else:
+        instructions = (
+            "📋 *Hatua za haraka:*\n"
+            f"1. Nenda {info['url']}\n"
+            f"2. Jisajili au ingia\n"
+            f"3. Fuata maelekezo\n\n"
+        )
     
     message = (
         f"✅ *Umechagua {platform}*\n\n"
         f"📝 {info['desc']}\n\n"
         f"🔗 Tembelea: [{info['url']}](https://{info['url']})\n\n"
-        f"📋 *Hatua za haraka:*\n"
-        f"1. Nenda {info['url']}\n"
-        f"2. Jisajili au ingia\n"
-        f"3. Chagua 'Nunua Bitcoin'\n"
-        f"4. Fuata maelekezo ya kulipa\n"
-        f"5. Pokea Bitcoin kwenye pochi yako\n\n"
-        f"Bonyeza hapa chini ukimaliza muamala."
+        f"{instructions}"
+        f"Bonyeza hapa chini ukimaliza."
     )
     keyboard = [["✅ Nimemaliza Muamala"], ["⬅️ Rudi Mwanzo"]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -430,11 +514,25 @@ async def handle_message(update: Update, context: CallbackContext):
         "💡 Kidokezo cha Leo": lambda u, c: send_daily_tip(c.bot, u.effective_user.id, u.effective_chat.id),
         "ℹ️ Msaada Zaidi": show_more_help,
         "⬅️ Rudi Mwanzo": back_to_main_menu,
-        "🛒 Nunua Bitcoin": purchase_bitcoin,
+        
+        # Category handlers
+        "🛒 Nunua Bitcoin": show_purchase_platforms,
+        "👛 Pochi za Bitcoin": show_wallet_platforms,
+        "💳 Tumia Bitcoin": show_spending_platforms,
+        
+        # Purchase platforms
         "Bitika": lambda u, c: handle_purchase_platform(u, c, "Bitika"),
         "Bitsacco": lambda u, c: handle_purchase_platform(u, c, "Bitsacco"),
+        
+        # Wallet platforms
+        "Blink": lambda u, c: handle_purchase_platform(u, c, "Blink"),
         "Fedi": lambda u, c: handle_purchase_platform(u, c, "Fedi"),
+        "Phoenix": lambda u, c: handle_purchase_platform(u, c, "Phoenix"),
+        "Wallet of Satoshi": lambda u, c: handle_purchase_platform(u, c, "Wallet of Satoshi"),
+        
+        # Spending platforms
         "Tando": lambda u, c: handle_purchase_platform(u, c, "Tando"),
+        
         "✅ Nimemaliza Muamala": transaction_complete,
         "📝 Toa Maoni": lambda u, c: ask_for_feedback(u, c),
     }

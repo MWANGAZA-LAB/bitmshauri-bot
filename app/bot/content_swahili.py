@@ -47,7 +47,7 @@ LESSONS = {
             "👛 *Jinsi ya kufungua pochi ya Bitcoin na mifano:*\n"
             "Chagua aina ya pochi:\n"
             "🔥 *Hot wallet* (mtandaoni): Rahisi kutumia lakini yenye hatari zaidi\n"
-            "   - Mifano: Exodus, Electrum, Blockchain.com, Tando\n"
+            "   - Mifano: Blink, Fedi, Phoenix, Wallet of Satoshi\n"
             "❄️ *Cold wallet* (nje ya mtandao): Salama zaidi\n"
             "   - Mifano: Ledger Nano S/X, Trezor, Bitkey\n\n"
             "Hatua za kufungua:\n"
@@ -97,7 +97,7 @@ LESSONS = {
     "mfano_matumizi": {
         "content": (
             "📱 *Mifano jinsi wallet inavyotumika:*\n"
-            "1. Fungua programu ya pochi (Exodus, Electrum, Tando, n.k)\n"
+            "1. Fungua programu ya pochi (Blink, Fedi, Phoenix, n.k)\n"
             "2. Chagua 'Tuma'\n"
             "3. Weka anwani ya mpokeaji\n"
             "4. Weka kiasi unachotuma\n"
@@ -141,13 +141,18 @@ LESSONS = {
     },
     "mpesa_guide": {
         "content": (
-            "📱 *Kununua Bitcoin kwa M-Pesa:*\n"
-            "1. Nenda bitsacco.com, fedi.xyz, bitika.xyz au tando.africa\n"
+            "📱 *Njia za kupata na kutumia Bitcoin:*\n\n"
+            "🛒 *KUNUNUA BITCOIN:*\n"
+            "1. Nenda bitika.xyz au bitsacco.com\n"
             "2. Tafuta muuzaji mwenye rating nzuri\n"
             "3. Chagua 'Nunua kwa M-Pesa'\n"
             "4. Fuata maelekezo kwenye skrini\n"
             "5. Tuma pesa kwa namba ya muuzaji\n"
             "6. Thibitisha kupokea Bitcoin kwenye pochi yako\n\n"
+            "👛 *POCHI ZA BITCOIN:*\n"
+            "• Blink, Fedi, Phoenix, Wallet of Satoshi - pochi za kutunza Bitcoin\n\n"
+            "💳 *KUTUMIA BITCOIN:*\n"
+            "• Tando.africa - Badilisha Bitcoin kuwa M-Pesa\n\n"
             "💡 *Vidokezo Muhimu:*\n"
             "   - Hakikisha anwani ya pochi ni sahihi\n"
             "   - Kamwe usitoae pesa kabla ya kupokea Bitcoin\n"
@@ -158,7 +163,7 @@ LESSONS = {
         "content": (
             "❓ *Maswali Yanayoulizwa Mara kwa Mara:*\n"
             "1. *Nawezaje kununua Bitcoin kwa M-Pesa?*\n"
-            "   - Tumia bitsacco.com, bitika.xyz au tando.africa\n"
+            "   - Tumia bitika.xyz au bitsacco.com\n"
             "   - Chagua muuzaji mwenye tathmini nzuri\n\n"
             "2. *Je, Bitcoin ni halali Kenya?*\n"
             "   - Ndio, lakini sio sarafu rasmi\n"
@@ -171,7 +176,7 @@ LESSONS = {
             "5. *Je, Bitcoin inaweza kupotea?*\n"
             "   - Ndio, ukipoteza seed phrase au private key, huwezi kurejesha Bitcoin zako\n\n"
             "6. *Ninaweza kutumia Bitcoin kununua nini?*\n"
-            "   - Bidhaa na huduma mtandaoni, au kubadilisha kwa pesa taslimu kupitia P2P\n\n"
+            "   - Bidhaa na huduma mtandaoni, au kubadilisha kwa pesa taslimu kupitia Tando\n\n"
             "7. *Je, Bitcoin ni haramu?*\n"
             "   - Hapana, lakini inategemea sheria za nchi yako\n\n"
             "8. *Ninawezaje kuona salio langu la Bitcoin?*\n"
@@ -181,7 +186,10 @@ LESSONS = {
             "10. *Ninawezaje kupata Bitcoin bila kununua?*\n"
             "   - Unaweza kufanya kazi mtandaoni na kulipwa kwa Bitcoin, au kupata zawadi (airdrops)\n\n"
             "11. *Tando ni nini na ninawezaje kuitumia?*\n"
-            "   - Tando ni pochi ya Bitcoin inayorahisisha kutuma na kupokea Bitcoin kwa urahisi. Nenda tando.africa, jisajili, na fuata maelekezo kuweka au kutoa Bitcoin.\n\n"
+            "   - Tando ni huduma ya kubadilisha Bitcoin kuwa M-Pesa. Nenda tando.africa, jisajili, na fuata maelekezo kuweka Bitcoin na kuipokea kama M-Pesa.\n\n"
+            "12. *Ni pochi gani bora za Bitcoin?*\n"
+            "   - Blink, Fedi, Phoenix, Wallet of Satoshi - kwa rahisi\n"
+            "   - Ledger, Trezor - kwa usalama mkubwa\n\n"
             "Je, una swali lingine? Andika hapa chini na nitakujibu moja kwa moja!"
         )
     },
