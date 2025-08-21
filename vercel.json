@@ -4,6 +4,10 @@
     {
       "src": "api/bot.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
@@ -12,8 +16,12 @@
       "dest": "/api/bot.py"
     },
     {
+      "src": "/",
+      "dest": "/api/index.py"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/api/bot.py"
+      "dest": "/api/index.py"
     }
   ],
   "env": {
@@ -22,6 +30,9 @@
   "functions": {
     "api/bot.py": {
       "maxDuration": 30
+    },
+    "api/index.py": {
+      "maxDuration": 10
     }
   }
 }
