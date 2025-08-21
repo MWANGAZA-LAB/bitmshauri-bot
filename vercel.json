@@ -2,11 +2,11 @@
   "version": 2,
   "functions": {
     "api/bot.py": {
-      "runtime": "python3.9",
+      "runtime": "@vercel/python@3.1.0",
       "maxDuration": 30
     },
     "api/index.py": {
-      "runtime": "python3.9",
+      "runtime": "@vercel/python@3.1.0",
       "maxDuration": 10
     }
   },
