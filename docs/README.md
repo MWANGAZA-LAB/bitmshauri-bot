@@ -24,7 +24,7 @@ This documentation site is automatically deployed to GitHub Pages when changes a
 1. **Automatic Deployment**: The GitHub Actions workflow (`.github/workflows/deploy.yml`) automatically builds and deploys the site
 2. **Source Branch**: `main`
 3. **Deploy Branch**: `gh-pages`
-4. **Site URL**: `https://yourusername.github.io/bitmshauri-bot-3/`
+4. **Site URL**: `https://mwanga-lab.github.io/bitmshauri-bot/`
 
 ### Manual Deployment
 
