@@ -2,8 +2,8 @@
 
 ## ✅ **BOT STATUS: READY FOR DEPLOYMENT**
 
-**Token**: `8057866774:AAEMaLJKIyVVqyKn6hEt7tqVt3EzHXzUWno`  
-**Status**: ✅ **Verified and Working**  
+**Token**: `[YOUR_BOT_TOKEN_HERE]`  
+**Status**: ✅ **Ready for Deployment**  
 **Test Result**: All systems operational
 
 ---
@@ -29,7 +29,7 @@ railway init
 
 #### Step 4: Set Environment Variables
 ```bash
-railway variables set TELEGRAM_BOT_TOKEN=8057866774:AAEMaLJKIyVVqyKn6hEt7tqVt3EzHXzUWno
+railway variables set TELEGRAM_BOT_TOKEN=YOUR_BOT_TOKEN_HERE
 railway variables set GECKO_API_URL=https://api.coingecko.com/api/v3
 railway variables set SECRET_KEY=bitmshauri_bot_secret_key_2024
 ```
@@ -55,7 +55,7 @@ heroku create bitmshauri-bot
 
 #### Step 3: Set Environment Variables
 ```bash
-heroku config:set TELEGRAM_BOT_TOKEN=8057866774:AAEMaLJKIyVVqyKn6hEt7tqVt3EzHXzUWno
+heroku config:set TELEGRAM_BOT_TOKEN=YOUR_BOT_TOKEN_HERE
 heroku config:set GECKO_API_URL=https://api.coingecko.com/api/v3
 heroku config:set SECRET_KEY=bitmshauri_bot_secret_key_2024
 ```
@@ -76,7 +76,7 @@ pip install -r requirements.txt
 
 #### Step 2: Set Environment Variables
 ```bash
-export TELEGRAM_BOT_TOKEN=8057866774:AAEMaLJKIyVVqyKn6hEt7tqVt3EzHXzUWno
+export TELEGRAM_BOT_TOKEN=YOUR_BOT_TOKEN_HERE
 export GECKO_API_URL=https://api.coingecko.com/api/v3
 export SECRET_KEY=bitmshauri_bot_secret_key_2024
 ```
@@ -118,7 +118,7 @@ python app/enhanced_telegram_bot.py
 
 ### **Required Variables**
 ```bash
-TELEGRAM_BOT_TOKEN=8057866774:AAEMaLJKIyVVqyKn6hEt7tqVt3EzHXzUWno
+TELEGRAM_BOT_TOKEN=YOUR_BOT_TOKEN_HERE
 GECKO_API_URL=https://api.coingecko.com/api/v3
 SECRET_KEY=bitmshauri_bot_secret_key_2024
 ```
@@ -208,7 +208,7 @@ heroku logs --tail
 - **Documentation**: https://mwanga-lab.github.io/bitmshauri-bot/
 
 ### **Bot Information**
-- **Token**: `8057866774:AAEMaLJKIyVVqyKn6hEt7tqVt3EzHXzUWno`
+- **Token**: `[YOUR_BOT_TOKEN_HERE]`
 - **Entry Point**: `app/enhanced_telegram_bot.py`
 - **Database**: SQLite (`bitmshauri.db`)
 
@@ -236,7 +236,7 @@ heroku logs --tail
 
 Your BitMshauri bot is **100% ready for deployment**. Choose your preferred platform and follow the steps above. The bot will provide comprehensive Bitcoin education to users in East Africa and beyond!
 
-**Bot Token**: `8057866774:AAEMaLJKIyVVqyKn6hEt7tqVt3EzHXzUWno`  
+**Bot Token**: `[YOUR_BOT_TOKEN_HERE]`  
 **Status**: ✅ **Verified and Ready**
 
 ---

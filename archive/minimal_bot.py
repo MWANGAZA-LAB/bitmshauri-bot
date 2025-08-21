@@ -11,7 +11,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-TOKEN = "8057866774:AAEMaLJKIyVVqyKn6hEt7tqVt3EzHXzUWno"
+TOKEN = "YOUR_BOT_TOKEN_HERE"
 
 
 SWAHILI_CONTENT = {
