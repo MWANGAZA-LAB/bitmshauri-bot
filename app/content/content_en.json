@@ -1,0 +1,78 @@
+{
+  "lessons": {
+    "intro": {
+      "title": "Welcome to BitMshauri",
+      "content": "Hello! I'm BitMshauri, your Bitcoin assistant in multiple languages. Choose an option below:",
+      "category": "basic",
+      "duration_minutes": 2,
+      "difficulty": "beginner"
+    },
+    "why_bitcoin": {
+      "title": "Why Bitcoin?",
+      "content": "🌍 *Why Use Bitcoin?*\n\nMany people don't understand why Bitcoin is important. Here are the key reasons:\n\n🔐 *Financial Freedom:*\n- Bitcoin is not controlled by banks or governments\n- You alone control your money\n\n💸 *Fast and Cheap Payments:*\n- Send money to anyone worldwide instantly\n- Very low fees compared to banks or traditional services\n\n📉 *Protection Against Inflation:*\n- Bitcoin cannot be printed endlessly like traditional currencies\n- Only 21 million will ever exist\n\n📱 *Accessible to Everyone:*\n- Even in rural areas, you can use Bitcoin with a mobile phone\n\n_Bitcoin is a new form of money that gives you freedom, security, and the ability to participate in the digital economy._",
+      "category": "basic",
+      "duration_minutes": 5,
+      "difficulty": "beginner"
+    }
+  },
+  "quizzes": {
+    "basic": [
+      {
+        "question": "Who controls Bitcoin?",
+        "options": [
+          "Central Bank",
+          "Government",
+          "No one",
+          "Bitcoin Company"
+        ],
+        "answer": 2,
+        "explanation": "Bitcoin is a peer-to-peer network not controlled by any person or institution."
+      }
+    ]
+  },
+  "daily_tips": [
+    "💡 Bitcoin is the world's first digital currency",
+    "🔐 Keep your seed phrase extremely secure",
+    "📚 Learn before you invest"
+  ],
+  "menu_keyboard": [
+    [
+      "🌍 Why Bitcoin?",
+      "📚 What is Bitcoin?"
+    ],
+    [
+      "💰 Bitcoin Price",
+      "📝 Bitcoin Quiz"
+    ],
+    [
+      "🛒 Buy Bitcoin",
+      "💡 Daily Tip"
+    ],
+    [
+      "ℹ️ More Help",
+      "📝 Feedback"
+    ]
+  ],
+  "secondary_menu_keyboard": [
+    [
+      "🔗 How P2P Works",
+      "👛 Wallet Types"
+    ],
+    [
+      "🔒 Wallet Security",
+      "⚠️ Lost Keys"
+    ],
+    [
+      "📱 Using Wallets",
+      "⚖️ Risks & Benefits"
+    ],
+    [
+      "🔐 Blockchain Tech",
+      "❓ More Questions"
+    ],
+    [
+      "🎵 Audio Lessons",
+      "⬅️ Back to Main"
+    ]
+  ]
+}

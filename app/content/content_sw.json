@@ -1,0 +1,78 @@
+{
+  "lessons": {
+    "intro": {
+      "title": "Utangulizi wa BitMshauri",
+      "content": "Habari! Mimi ni BitMshauri, msaidizi wako wa Bitcoin kwa Kiswahili. Chagua moja ya chaguo hapa chini:",
+      "category": "basic",
+      "duration_minutes": 2,
+      "difficulty": "beginner"
+    },
+    "kwa_nini_bitcoin": {
+      "title": "Kwa Nini Bitcoin?",
+      "content": "🌍 *Kwa Nini Utumie Bitcoin?*\n\nWatu wengi hawajui kwanini Bitcoin ni muhimu. Hapa kuna sababu kuu:\n\n🔐 *Uhuru wa Fedha:*\n- Bitcoin haidhibitiwi na benki au serikali\n- Wewe pekee unadhibiti pesa zako\n\n💸 *Malipo ya Haraka na Nafuu:*\n- Tuma pesa kwa mtu yeyote duniani papo hapo\n- Gharama ni ndogo sana ukilinganisha na benki au M-Pesa\n\n📉 *Ulinzi dhidi ya mfumuko wa bei:*\n- Bitcoin haitolewi kiholela kama sarafu za kawaida\n- Ni 21 milioni tu zitawahi kuwepo\n\n📱 *Ufikiaji kwa Wote:*\n- Hata ukiwa kijijini, unaweza kutumia Bitcoin na simu ya mkononi\n\n_Bitcoin ni njia mpya ya kifedha, inayokupa uhuru, usalama, na uwezo wa kushiriki katika uchumi wa kidijitali._",
+      "category": "basic",
+      "duration_minutes": 5,
+      "difficulty": "beginner"
+    }
+  },
+  "quizzes": {
+    "msingi": [
+      {
+        "question": "Bitcoin inasimamiwa na nani?",
+        "options": [
+          "Benki Kuu",
+          "Serikali",
+          "Hakuna mtu",
+          "Kampuni ya Bitcoin"
+        ],
+        "answer": 2,
+        "explanation": "Bitcoin ni mtandao wa peer-to-peer usiosimamiwa na mtu au taasisi yoyote."
+      }
+    ]
+  },
+  "daily_tips": [
+    "💡 Bitcoin ni sarafu ya kidijitali ya kwanza ulimwenguni",
+    "🔐 Hifadhi seed phrase yako kwa usalama mkubwa",
+    "📚 Soma na ujifunze kabla ya kuwekeza"
+  ],
+  "menu_keyboard": [
+    [
+      "🌍 Kwa Nini Bitcoin?",
+      "📚 Bitcoin ni nini?"
+    ],
+    [
+      "💰 Bei ya Bitcoin",
+      "📝 Jaribio la Bitcoin"
+    ],
+    [
+      "🛒 Nunua Bitcoin",
+      "💡 Kidokezo cha Leo"
+    ],
+    [
+      "ℹ️ Msaada Zaidi",
+      "📝 Toa Maoni"
+    ]
+  ],
+  "secondary_menu_keyboard": [
+    [
+      "🔗 P2P Inafanyaje",
+      "👛 Aina za Pochi"
+    ],
+    [
+      "🔒 Usalama wa Pochi",
+      "⚠️ Kupoteza Ufunguo"
+    ],
+    [
+      "📱 Matumizi ya Pochi",
+      "⚖️ Faida na Hatari"
+    ],
+    [
+      "🔐 Teknolojia ya Blockchain",
+      "❓ Maswali Mengine"
+    ],
+    [
+      "🎵 Masomo ya Sauti",
+      "⬅️ Rudi Mwanzo"
+    ]
+  ]
+}

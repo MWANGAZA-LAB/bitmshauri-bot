@@ -402,3 +402,143 @@ try:
     init_db()
 except Exception as e:
     print(f"Database initialization failed: {e}")
+
+# --- DatabaseManager Class for Enhanced Bot Integration ---
+class DatabaseManager:
+    """Enhanced database manager for the BitMshauri bot"""
+    
+    def __init__(self):
+        """Initialize the database manager"""
+        self.db_path = DB_NAME
+        try:
+            init_db()
+            print("💾 Enhanced database initialized with analytics tables")
+        except Exception as e:
+            print(f"Database initialization failed: {e}")
+    
+    def add_user(self, user_id: int, username: str = None, first_name: str = None, last_name: str = None, chat_id: int = None):
+        """Add or update user in database"""
+        try:
+            with db_connection() as cursor:
+                cursor.execute('''
+                    INSERT OR REPLACE INTO users 
+                    (user_id, username, first_name, last_name, chat_id, last_active)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ''', (user_id, username, first_name, last_name, chat_id, datetime.now()))
+                
+                track_user_activity(user_id, 'user_registered', {
+                    'username': username,
+                    'first_name': first_name,
+                    'last_name': last_name
+                })
+        except Exception as e:
+            logger.log_error(e, {"operation": "add_user", "user_id": user_id})
+    
+    def get_user(self, user_id: int):
+        """Get user by ID"""
+        return get_user_by_id(user_id)
+    
+    def update_user_activity(self, user_id: int):
+        """Update user's last activity"""
+        try:
+            with db_connection() as cursor:
+                cursor.execute('''
+                    UPDATE users SET last_active = ? WHERE user_id = ?
+                ''', (datetime.now(), user_id))
+        except Exception as e:
+            logger.log_error(e, {"operation": "update_user_activity", "user_id": user_id})
+    
+    def get_user_progress(self, user_id: int):
+        """Get user's learning progress"""
+        try:
+            with db_connection() as cursor:
+                # Get completed lessons
+                cursor.execute('''
+                    SELECT lesson_key, completed_at 
+                    FROM lesson_progress 
+                    WHERE user_id = ?
+                ''', (user_id,))
+                completed_lessons = [dict(row) for row in cursor.fetchall()]
+                
+                # Get quiz results
+                cursor.execute('''
+                    SELECT quiz_name, score, total_questions, completed_at 
+                    FROM quiz_results 
+                    WHERE user_id = ?
+                ''', (user_id,))
+                quiz_results = [dict(row) for row in cursor.fetchall()]
+                
+                # Get user stats
+                cursor.execute('''
+                    SELECT total_lessons_completed, total_quizzes_taken, 
+                           quiz_score_average, streak_days, total_score
+                    FROM users WHERE user_id = ?
+                ''', (user_id,))
+                user_stats = cursor.fetchone()
+                
+                return {
+                    'completed_lessons': completed_lessons,
+                    'quiz_results': quiz_results,
+                    'total_lessons_completed': user_stats[0] if user_stats else 0,
+                    'total_quizzes_taken': user_stats[1] if user_stats else 0,
+                    'quiz_score_average': user_stats[2] if user_stats else 0.0,
+                    'streak_days': user_stats[3] if user_stats else 0,
+                    'total_score': user_stats[4] if user_stats else 0
+                }
+        except Exception as e:
+            logger.log_error(e, {"operation": "get_user_progress", "user_id": user_id})
+            return {}
+    
+    def save_lesson_progress(self, user_id: int, lesson_key: str, completion_time: int = None):
+        """Save lesson completion"""
+        try:
+            with db_connection() as cursor:
+                cursor.execute('''
+                    INSERT INTO lesson_progress (user_id, lesson_key, completion_time_seconds)
+                    VALUES (?, ?, ?)
+                ''', (user_id, lesson_key, completion_time))
+                
+                # Update user stats
+                cursor.execute('''
+                    UPDATE users 
+                    SET total_lessons_completed = total_lessons_completed + 1
+                    WHERE user_id = ?
+                ''', (user_id,))
+                
+                track_user_activity(user_id, 'lesson_completed', {
+                    'lesson_key': lesson_key,
+                    'completion_time': completion_time
+                })
+        except Exception as e:
+            logger.log_error(e, {"operation": "save_lesson_progress", "user_id": user_id})
+    
+    def save_quiz_result(self, user_id: int, quiz_name: str, score: int, total_questions: int, answers: dict = None):
+        """Save quiz result"""
+        try:
+            with db_connection() as cursor:
+                cursor.execute('''
+                    INSERT INTO quiz_results (user_id, quiz_name, score, total_questions, answers)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (user_id, quiz_name, score, total_questions, json.dumps(answers) if answers else None))
+                
+                # Update user stats
+                cursor.execute('''
+                    UPDATE users 
+                    SET total_quizzes_taken = total_quizzes_taken + 1,
+                        quiz_score_average = (
+                            (quiz_score_average * total_quizzes_taken + ?) / (total_quizzes_taken + 1)
+                        )
+                    WHERE user_id = ?
+                ''', (score, user_id))
+                
+                track_user_activity(user_id, 'quiz_completed', {
+                    'quiz_name': quiz_name,
+                    'score': score,
+                    'total_questions': total_questions
+                })
+        except Exception as e:
+            logger.log_error(e, {"operation": "save_quiz_result", "user_id": user_id})
+    
+    def get_analytics(self, days: int = 7):
+        """Get system analytics"""
+        return get_system_analytics(days)
