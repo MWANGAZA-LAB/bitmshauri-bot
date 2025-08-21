@@ -1,11 +1,5 @@
 import json
-import os
-import sys
 
-# Add the app directory to Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
-# Simple bot handler without complex imports
 def handler(request, context):
     """Vercel serverless function handler for Telegram bot"""
     try:
@@ -63,7 +57,6 @@ def handler(request, context):
                 }
                 
             except Exception as e:
-                print(f"Error handling webhook: {e}")
                 return {
                     'statusCode': 500,
                     'headers': headers,
@@ -78,7 +71,6 @@ def handler(request, context):
         }
         
     except Exception as e:
-        print(f"Handler error: {e}")
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json'},

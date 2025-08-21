@@ -3,11 +3,11 @@
   "builds": [
     {
       "src": "api/bot.py",
-      "use": "@vercel/python@3.0.0"
+      "use": "@vercel/python"
     },
     {
       "src": "api/index.py",
-      "use": "@vercel/python@3.0.0"
+      "use": "@vercel/python"
     }
   ],
   "routes": [
@@ -23,8 +23,5 @@
       "src": "/(.*)",
       "dest": "/api/index.py"
     }
-  ],
-  "env": {
-    "PYTHONPATH": "."
-  }
+  ]
 }

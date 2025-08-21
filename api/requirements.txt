@@ -1,0 +1,2 @@
+# Minimal requirements for Vercel API functions
+# Only essential dependencies to avoid pip3.9 issues
