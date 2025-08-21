@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Guide - BitMshauri Bot</title>
+    <meta name="description" content="Developer documentation for BitMshauri bot - architecture, setup, and contribution guidelines.">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fab fa-bitcoin"></i>
+                <span>BitMshauri</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="index.html#getting-started">Get Started</a></li>
+                <li><a href="index.html#documentation">Docs</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+                <li><a href="https://t.me/BitMshauriBot" class="cta-button">Try Bot</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Developer Guide</h1>
+            <p>Technical documentation for developers and contributors</p>
+        </div>
+    </section>
+
+    <!-- Table of Contents -->
+    <section class="toc-section">
+        <div class="container">
+            <div class="toc-card">
+                <h2>Table of Contents</h2>
+                <ul class="toc-list">
+                    <li><a href="#architecture">Architecture Overview</a></li>
+                    <li><a href="#setup">Development Setup</a></li>
+                    <li><a href="#project-structure">Project Structure</a></li>
+                    <li><a href="#core-components">Core Components</a></li>
+                    <li><a href="#database">Database Schema</a></li>
+                    <li><a href="#api-integrations">API Integrations</a></li>
+                    <li><a href="#testing">Testing</a></li>
+                    <li><a href="#deployment">Deployment</a></li>
+                    <li><a href="#contributing">Contributing</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Overview -->
+    <section id="architecture" class="guide-section">
+        <div class="container">
+            <h2>Architecture Overview</h2>
+            <div class="guide-content">
+                <h3>System Architecture</h3>
+                <p>BitMshauri is built with a modular, scalable architecture designed for reliability and maintainability:</p>
+                
+                <div class="architecture-diagram">
+                    <div class="arch-layer">
+                        <h4>Presentation Layer</h4>
+                        <ul>
+                            <li>Telegram Bot Interface</li>
+                            <li>Web Dashboard (Future)</li>
+                            <li>API Endpoints</li>
+                        </ul>
+                    </div>
+                    <div class="arch-layer">
+                        <h4>Application Layer</h4>
+                        <ul>
+                            <li>Bot Command Handlers</li>
+                            <li>Business Logic Services</li>
+                            <li>AI Integration</li>
+                        </ul>
+                    </div>
+                    <div class="arch-layer">
+                        <h4>Data Layer</h4>
+                        <ul>
+                            <li>SQLite Database</li>
+                            <li>External APIs</li>
+                            <li>File Storage</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Technology Stack</h3>
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <i class="fab fa-python"></i>
+                        <div>
+                            <h4>Python 3.8+</h4>
+                            <p>Core programming language</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-database"></i>
+                        <div>
+                            <h4>SQLite</h4>
+                            <p>Lightweight database</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fab fa-telegram"></i>
+                        <div>
+                            <h4>Telegram Bot API</h4>
+                            <p>Messaging platform</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-robot"></i>
+                        <div>
+                            <h4>OpenAI GPT</h4>
+                            <p>AI-powered Q&A</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Development Setup -->
+    <section id="setup" class="guide-section">
+        <div class="container">
+            <h2>Development Setup</h2>
+            <div class="guide-content">
+                <h3>Prerequisites</h3>
+                <ul>
+                    <li>Python 3.8 or higher</li>
+                    <li>Git</li>
+                    <li>Telegram Bot Token (from @BotFather)</li>
+                    <li>OpenAI API Key (optional, for AI features)</li>
+                </ul>
+
+                <h3>Installation Steps</h3>
+                <div class="setup-steps">
+                    <div class="setup-step">
+                        <h4>1. Clone the Repository</h4>
+                        <code>git clone https://github.com/yourusername/bitmshauri-bot-3.git
+cd bitmshauri-bot-3</code>
+                    </div>
+                    <div class="setup-step">
+                        <h4>2. Create Virtual Environment</h4>
+                        <code>python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate</code>
+                    </div>
+                    <div class="setup-step">
+                        <h4>3. Install Dependencies</h4>
+                        <code>pip install -r requirements.txt</code>
+                    </div>
+                    <div class="setup-step">
+                        <h4>4. Configure Environment</h4>
+                        <code>cp .env.example .env
+# Edit .env with your bot token and API keys</code>
+                    </div>
+                    <div class="setup-step">
+                        <h4>5. Initialize Database</h4>
+                        <code>python setup.py</code>
+                    </div>
+                    <div class="setup-step">
+                        <h4>6. Run the Bot</h4>
+                        <code>python app/enhanced_telegram_bot.py</code>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <i class="fas fa-lightbulb"></i>
+                    <div>
+                        <h4>Development Tips</h4>
+                        <p>Use the <code>--debug</code> flag when running the bot for detailed logging and development features.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Project Structure -->
+    <section id="project-structure" class="guide-section">
+        <div class="container">
+            <h2>Project Structure</h2>
+            <div class="guide-content">
+                <h3>Directory Layout</h3>
+                <div class="structure-tree">
+                    <pre><code>bitmshauri-bot-3/
+├── app/
+│   ├── __init__.py
+│   ├── enhanced_telegram_bot.py    # Main bot entry point
+│   ├── database.py                 # Database models
+│   ├── enhanced_database.py        # Enhanced database operations
+│   ├── routes.py                   # Web routes (future)
+│   └── bot/
+│       ├── __init__.py
+│       ├── telegram_bot.py         # Core bot functionality
+│       ├── price_api.py            # Price fetching
+│       ├── content_swahili.py      # Swahili content
+│       └── audio_tts.py            # Text-to-speech
+├── app/services/
+│   ├── calculator.py               # Price calculator
+│   ├── community.py                # Group features
+│   ├── content_manager.py          # Content management
+│   ├── enhanced_audio.py           # Audio processing
+│   ├── multi_language.py           # Language handling
+│   ├── price_service.py            # Price services
+│   └── progress_tracker.py         # User progress
+├── app/utils/
+│   ├── logger.py                   # Logging utilities
+│   └── rate_limiter.py             # Rate limiting
+├── docs/                           # Documentation
+├── tests/                          # Test suite
+├── requirements.txt                # Python dependencies
+├── config.py                       # Configuration
+├── main.py                         # Alternative entry point
+└── setup.py                        # Setup script</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Components -->
+    <section id="core-components" class="guide-section">
+        <div class="container">
+            <h2>Core Components</h2>
+            <div class="guide-content">
+                <h3>Bot Handler</h3>
+                <p>The main bot handler manages incoming messages and routes them to appropriate services:</p>
+                
+                <div class="component-card">
+                    <h4>enhanced_telegram_bot.py</h4>
+                    <ul>
+                        <li>Message routing and command handling</li>
+                        <li>User session management</li>
+                        <li>Error handling and logging</li>
+                        <li>Rate limiting implementation</li>
+                    </ul>
+                </div>
+
+                <h3>Service Layer</h3>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <h4>Calculator Service</h4>
+                        <p>Handles currency conversions and price calculations</p>
+                        <code>app/services/calculator.py</code>
+                    </div>
+                    <div class="service-card">
+                        <h4>Community Service</h4>
+                        <p>Manages study groups and community features</p>
+                        <code>app/services/community.py</code>
+                    </div>
+                    <div class="service-card">
+                        <h4>Content Manager</h4>
+                        <p>Handles educational content and lessons</p>
+                        <code>app/services/content_manager.py</code>
+                    </div>
+                    <div class="service-card">
+                        <h4>Multi-language</h4>
+                        <p>Language detection and translation</p>
+                        <code>app/services/multi_language.py</code>
+                    </div>
+                </div>
+
+                <h3>Database Layer</h3>
+                <p>The database layer provides data persistence and user management:</p>
+                <ul>
+                    <li><strong>User Management:</strong> User profiles, preferences, and progress</li>
+                    <li><strong>Content Storage:</strong> Lessons, quizzes, and educational materials</li>
+                    <li><strong>Community Data:</strong> Study groups and group interactions</li>
+                    <li><strong>Analytics:</strong> Usage statistics and learning metrics</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Database Schema -->
+    <section id="database" class="guide-section">
+        <div class="container">
+            <h2>Database Schema</h2>
+            <div class="guide-content">
+                <h3>Core Tables</h3>
+                
+                <div class="schema-table">
+                    <h4>Users Table</h4>
+                    <pre><code>CREATE TABLE users (
+    id INTEGER PRIMARY KEY,
+    telegram_id INTEGER UNIQUE NOT NULL,
+    username TEXT,
+    first_name TEXT,
+    last_name TEXT,
+    language TEXT DEFAULT 'en',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_active TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    progress_data TEXT,  -- JSON string
+    preferences TEXT     -- JSON string
+);</code></pre>
+                </div>
+
+                <div class="schema-table">
+                    <h4>Lessons Table</h4>
+                    <pre><code>CREATE TABLE lessons (
+    id INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    language TEXT NOT NULL,
+    difficulty INTEGER DEFAULT 1,
+    category TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);</code></pre>
+                </div>
+
+                <div class="schema-table">
+                    <h4>User Progress Table</h4>
+                    <pre><code>CREATE TABLE user_progress (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER,
+    lesson_id INTEGER,
+    completed BOOLEAN DEFAULT FALSE,
+    score INTEGER,
+    completed_at TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (lesson_id) REFERENCES lessons(id)
+);</code></pre>
+                </div>
+
+                <div class="schema-table">
+                    <h4>Study Groups Table</h4>
+                    <pre><code>CREATE TABLE study_groups (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    creator_id INTEGER,
+    max_members INTEGER DEFAULT 50,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (creator_id) REFERENCES users(id)
+);</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Integrations -->
+    <section id="api-integrations" class="guide-section">
+        <div class="container">
+            <h2>API Integrations</h2>
+            <div class="guide-content">
+                <h3>External APIs</h3>
+                
+                <div class="api-grid">
+                    <div class="api-card">
+                        <h4>Telegram Bot API</h4>
+                        <p>Primary messaging platform</p>
+                        <ul>
+                            <li>Message handling</li>
+                            <li>Inline keyboards</li>
+                            <li>File uploads</li>
+                            <li>Webhook support</li>
+                        </ul>
+                    </div>
+                    <div class="api-card">
+                        <h4>CoinGecko API</h4>
+                        <p>Cryptocurrency price data</p>
+                        <ul>
+                            <li>Real-time prices</li>
+                            <li>Historical data</li>
+                            <li>Market statistics</li>
+                            <li>Currency conversion</li>
+                        </ul>
+                    </div>
+                    <div class="api-card">
+                        <h4>OpenAI GPT API</h4>
+                        <p>AI-powered Q&A system</p>
+                        <ul>
+                            <li>Natural language processing</li>
+                            <li>Context-aware responses</li>
+                            <li>Multi-language support</li>
+                            <li>Educational content generation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Rate Limiting</h3>
+                <p>The bot implements intelligent rate limiting to prevent abuse:</p>
+                <ul>
+                    <li><strong>User-based limits:</strong> Maximum requests per user per time window</li>
+                    <li><strong>Action-specific limits:</strong> Different limits for different commands</li>
+                    <li><strong>Progressive penalties:</strong> Increasing delays for repeated violations</li>
+                    <li><strong>Whitelist support:</strong> Exempt trusted users from limits</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testing -->
+    <section id="testing" class="guide-section">
+        <div class="container">
+            <h2>Testing</h2>
+            <div class="guide-content">
+                <h3>Test Suite</h3>
+                <p>Comprehensive testing ensures reliability and quality:</p>
+
+                <div class="test-categories">
+                    <div class="test-category">
+                        <h4>Unit Tests</h4>
+                        <p>Test individual components and functions</p>
+                        <code>python -m pytest tests/unit/</code>
+                    </div>
+                    <div class="test-category">
+                        <h4>Integration Tests</h4>
+                        <p>Test component interactions</p>
+                        <code>python -m pytest tests/integration/</code>
+                    </div>
+                    <div class="test-category">
+                        <h4>End-to-End Tests</h4>
+                        <p>Test complete user workflows</p>
+                        <code>python -m pytest tests/e2e/</code>
+                    </div>
+                </div>
+
+                <h3>Running Tests</h3>
+                <div class="test-commands">
+                    <div class="command-example">
+                        <strong>Run all tests:</strong>
+                        <code>python -m pytest</code>
+                    </div>
+                    <div class="command-example">
+                        <strong>Run with coverage:</strong>
+                        <code>python -m pytest --cov=app</code>
+                    </div>
+                    <div class="command-example">
+                        <strong>Run specific test file:</strong>
+                        <code>python -m pytest tests/test_calculator.py</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Deployment -->
+    <section id="deployment" class="guide-section">
+        <div class="container">
+            <h2>Deployment</h2>
+            <div class="guide-content">
+                <h3>Production Deployment</h3>
+                <p>Deploy the bot to production using various platforms:</p>
+
+                <div class="deployment-options">
+                    <div class="deployment-option">
+                        <h4>Heroku</h4>
+                        <p>Easy deployment with Procfile support</p>
+                        <code>git push heroku main</code>
+                    </div>
+                    <div class="deployment-option">
+                        <h4>Railway</h4>
+                        <p>Modern deployment platform</p>
+                        <code>railway up</code>
+                    </div>
+                    <div class="deployment-option">
+                        <h4>VPS/Dedicated Server</h4>
+                        <p>Full control over deployment</p>
+                        <code>systemctl start bitmshauri-bot</code>
+                    </div>
+                </div>
+
+                <h3>Environment Variables</h3>
+                <div class="env-vars">
+                    <div class="env-var">
+                        <code>TELEGRAM_BOT_TOKEN</code>
+                        <p>Your Telegram bot token from @BotFather</p>
+                    </div>
+                    <div class="env-var">
+                        <code>OPENAI_API_KEY</code>
+                        <p>OpenAI API key for AI features</p>
+                    </div>
+                    <div class="env-var">
+                        <code>DATABASE_PATH</code>
+                        <p>Path to SQLite database file</p>
+                    </div>
+                    <div class="env-var">
+                        <code>LOG_LEVEL</code>
+                        <p>Logging level (DEBUG, INFO, WARNING, ERROR)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contributing -->
+    <section id="contributing" class="guide-section">
+        <div class="container">
+            <h2>Contributing</h2>
+            <div class="guide-content">
+                <h3>How to Contribute</h3>
+                <p>We welcome contributions from the community! Here's how to get started:</p>
+
+                <div class="contribution-steps">
+                    <div class="contribution-step">
+                        <h4>1. Fork the Repository</h4>
+                        <p>Create your own fork of the project on GitHub</p>
+                    </div>
+                    <div class="contribution-step">
+                        <h4>2. Create a Feature Branch</h4>
+                        <code>git checkout -b feature/your-feature-name</code>
+                    </div>
+                    <div class="contribution-step">
+                        <h4>3. Make Your Changes</h4>
+                        <p>Implement your feature or fix with proper testing</p>
+                    </div>
+                    <div class="contribution-step">
+                        <h4>4. Run Tests</h4>
+                        <code>python -m pytest</code>
+                    </div>
+                    <div class="contribution-step">
+                        <h4>5. Submit a Pull Request</h4>
+                        <p>Create a PR with a clear description of your changes</p>
+                    </div>
+                </div>
+
+                <h3>Development Guidelines</h3>
+                <ul>
+                    <li><strong>Code Style:</strong> Follow PEP 8 Python style guidelines</li>
+                    <li><strong>Documentation:</strong> Add docstrings and update README if needed</li>
+                    <li><strong>Testing:</strong> Write tests for new features</li>
+                    <li><strong>Commits:</strong> Use clear, descriptive commit messages</li>
+                    <li><strong>Branch Naming:</strong> Use descriptive branch names (feature/, bugfix/, etc.)</li>
+                </ul>
+
+                <h3>Areas for Contribution</h3>
+                <div class="contribution-areas">
+                    <div class="area-card">
+                        <h4>New Features</h4>
+                        <ul>
+                            <li>Additional language support</li>
+                            <li>New educational content</li>
+                            <li>Enhanced AI capabilities</li>
+                            <li>Mobile app integration</li>
+                        </ul>
+                    </div>
+                    <div class="area-card">
+                        <h4>Bug Fixes</h4>
+                        <ul>
+                            <li>Report and fix bugs</li>
+                            <li>Improve error handling</li>
+                            <li>Performance optimizations</li>
+                            <li>Security enhancements</li>
+                        </ul>
+                    </div>
+                    <div class="area-card">
+                        <h4>Documentation</h4>
+                        <ul>
+                            <li>Improve code documentation</li>
+                            <li>Update user guides</li>
+                            <li>Create tutorials</li>
+                            <li>Translate documentation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fab fa-bitcoin"></i>
+                        <span>BitMshauri</span>
+                    </div>
+                    <p>Empowering East Africa with Bitcoin education and financial literacy.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="user-guide.html">User Guide</a></li>
+                        <li><a href="api-reference.html">API Reference</a></li>
+                        <li><a href="https://t.me/BitMshauriBot">Try Bot</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="developer-guide.html">Developer Docs</a></li>
+                        <li><a href="https://github.com/yourusername/bitmshauri-bot-3">Source Code</a></li>
+                        <li><a href="mailto:mwanga02717@gmail.com">Contact Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 BitMshauri Bot. MIT License. Made with ❤️ for East Africa.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
