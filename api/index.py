@@ -1,5 +1,6 @@
 import json
 
+
 def handler(request, context):
     """Handle root URL requests"""
     headers = {

@@ -1,5 +1,8 @@
-from app.bot.telegram_bot import bot_app
+#!/usr/bin/env python3
+"""BitMshauri Bot - Main Entry Point"""
 
+from app.enhanced_telegram_bot import EnhancedBitMshauriBot
 
 if __name__ == "__main__":
-    bot_app.run_polling()
+    bot = EnhancedBitMshauriBot()
+    bot.run()

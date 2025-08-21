@@ -1,5 +1,6 @@
 import json
 
+
 def handler(request, context):
     """Vercel serverless function handler for Telegram bot"""
     try:
@@ -70,7 +71,7 @@ def handler(request, context):
             'body': json.dumps({'error': 'Method not allowed'})
         }
         
-    except Exception as e:
+    except Exception:
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json'},
