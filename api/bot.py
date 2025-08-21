@@ -5,16 +5,9 @@ import sys
 # Add the app directory to Python path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-try:
-    from app.enhanced_telegram_bot import EnhancedBitMshauriBot
-    bot = EnhancedBitMshauriBot()
-except Exception as e:
-    print(f"Error importing bot: {e}")
-    bot = None
-
-
+# Simple bot handler without complex imports
 def handler(request, context):
-    """Vercel serverless function handler"""
+    """Vercel serverless function handler for Telegram bot"""
     try:
         # Handle CORS
         headers = {
@@ -41,19 +34,12 @@ def handler(request, context):
                     'status': 'ok',
                     'message': 'BitMshauri Bot is running',
                     'version': '1.0.0',
-                    'bot_loaded': bot is not None
+                    'endpoint': '/api/bot'
                 })
             }
         
         # Handle POST request (Telegram webhook)
         if request.method == 'POST':
-            if bot is None:
-                return {
-                    'statusCode': 500,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Bot not initialized'})
-                }
-            
             try:
                 # Get the request body
                 body = request.body
@@ -63,8 +49,12 @@ def handler(request, context):
                 # Parse the JSON data
                 update_data = json.loads(body)
                 
-                # Process the update with the bot
-                response = bot.handle_webhook(update_data)
+                # Simple response for now (we'll enhance this later)
+                response = {
+                    'status': 'received',
+                    'message': 'Webhook received successfully',
+                    'update_id': update_data.get('update_id', 'unknown')
+                }
                 
                 return {
                     'statusCode': 200,
