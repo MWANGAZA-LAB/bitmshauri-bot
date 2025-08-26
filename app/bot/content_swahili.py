@@ -200,7 +200,7 @@ LESSONS = {
             "Tuna lengo la kueneza ujuzi wa Bitcoin kwa wote, hasa kwa wale walio kwenye mazingira ya vijijini. "
             "Tunataka kufikisha elimu ya Bitcoin kwa kila mtu bila malipo.\n"
         )
-    }
+    },
 }
 
 # Quiz questions - enhanced
@@ -210,7 +210,7 @@ QUIZZES = {
             "question": "Bitcoin ilianzishwa mwaka gani?",
             "options": ["2008", "2009", "2010", "2011"],
             "answer": 1,
-            "explanation": "Bitcoin ilizinduliwa mwaka 2009 na Satoshi Nakamoto."
+            "explanation": "Bitcoin ilizinduliwa mwaka 2009 na Satoshi Nakamoto.",
         },
         {
             "question": "Kwa nini Bitcoin inatumia teknolojia ya blockchain?",
@@ -218,10 +218,10 @@ QUIZZES = {
                 "Kuongeza kasi ya miamala",
                 "Kuhakikisha usalama na uwazi",
                 "Kupunguza gharama za benki",
-                "Kuwezesha serikali kudhibiti"
+                "Kuwezesha serikali kudhibiti",
             ],
             "answer": 1,
-            "explanation": "Blockchain inahakikisha miamala ni salama, wazi, na isiyobadilika."
+            "explanation": "Blockchain inahakikisha miamala ni salama, wazi, na isiyobadilika.",
         },
         {
             "question": "Ni nini kinachofanya Bitcoin kuwa 'decentralized'?",
@@ -229,10 +229,10 @@ QUIZZES = {
                 "Inasimamiwa na benki kuu",
                 "Inasimamiwa na serikali",
                 "Inaendeshwa na mtandao wa kompyuta duniani kote",
-                "Inasimamiwa na kampuni moja"
+                "Inasimamiwa na kampuni moja",
             ],
             "answer": 2,
-            "explanation": "Bitcoin haina mamlaka kuu; inaendeshwa na mtandao wa kompyuta duniani kote."
+            "explanation": "Bitcoin haina mamlaka kuu; inaendeshwa na mtandao wa kompyuta duniani kote.",
         },
         {
             "question": "Ni kipi kati ya hivi ni faida kuu ya Bitcoin?",
@@ -240,11 +240,11 @@ QUIZZES = {
                 "Inatolewa na serikali",
                 "Inahitaji benki kukamilisha miamala",
                 "Inatoa uhuru wa kifedha bila mamlaka ya kati",
-                "Ina bei isiyobadilika"
+                "Ina bei isiyobadilika",
             ],
             "answer": 2,
-            "explanation": "Bitcoin inatoa uhuru wa kifedha kwa kutokutegemea benki au serikali."
-        }
+            "explanation": "Bitcoin inatoa uhuru wa kifedha kwa kutokutegemea benki au serikali.",
+        },
     ],
     "usalama": [
         {
@@ -253,10 +253,10 @@ QUIZZES = {
                 "Hifadhi seed phrase mtandaoni",
                 "Shiriki seed phrase na rafiki",
                 "Hifadhi seed phrase kwenye karatasi au chuma iliyosimbwa",
-                "Usiwe na backup"
+                "Usiwe na backup",
             ],
             "answer": 2,
-            "explanation": "Seed phrase ni kitu muhimu zaidi. Ihifadhi kwenye karatasi au chuma iliyosimbwa, sio mtandaoni."
+            "explanation": "Seed phrase ni kitu muhimu zaidi. Ihifadhi kwenye karatasi au chuma iliyosimbwa, sio mtandaoni.",
         },
         {
             "question": "Unapoteza seed phrase yako, nini kinachotokea?",
@@ -264,12 +264,12 @@ QUIZZES = {
                 "Unaweza kuomba mpya kwa kampuni ya Bitcoin",
                 "Bitcoin zako zitapotea kabisa",
                 "Benki itakusaidia",
-                "Unaweza kurejesha kwa kutumia jina lako"
+                "Unaweza kurejesha kwa kutumia jina lako",
             ],
             "answer": 1,
-            "explanation": "Bila seed phrase, Bitcoin zako zitapotea kabisa. Hakuna njia ya kuzirejesha."
-        }
-    ]
+            "explanation": "Bila seed phrase, Bitcoin zako zitapotea kabisa. Hakuna njia ya kuzirejesha.",
+        },
+    ],
 }
 
 # Daily Bitcoin tips - cleaned and enhanced
@@ -293,7 +293,7 @@ DAILY_TIPS = [
     "📌 Kidokezo: Bitcoin ni haraka kuliko miamala ya kimataifa ya benki",
     "📌 Kidokezo: Unaweza kutuma Bitcoin hata siku za likizo - mtandao hauanguki",
     "📌 Kidokezo: Pochi ya Bitcoin ni kama akaunti ya benki ambayo wewe pekee unaidhibiti",
-    "📌 Kidokezo: Soma habari za Bitcoin kila siku kujua mabadiliko mapya"
+    "📌 Kidokezo: Soma habari za Bitcoin kila siku kujua mabadiliko mapya",
 ]
 
 # Main menu keyboard - enhanced with logical flow
@@ -301,7 +301,7 @@ MENU_KEYBOARD = [
     ["🌍 Kwa Nini Bitcoin?", "📚 Bitcoin ni nini?"],
     ["💰 Bei ya Bitcoin", "🛒 Nunua Bitcoin"],
     ["📝 Toa Maoni"],
-    ["ℹ️ Msaada Zaidi"]
+    ["ℹ️ Msaada Zaidi"],
 ]
 
 # Secondary menu keyboard - fixed and cleaned
@@ -311,7 +311,7 @@ SECONDARY_MENU_KEYBOARD = [
     ["📱 Matumizi ya Pochi", "⚖️ Faida na Hatari"],
     ["🔐 Teknolojia ya Blockchain", "❓ Maswali Mengine"],
     ["📝 Jaribio la Bitcoin", "💡 Kidokezo cha Leo"],
-    ["⬅️ Rudi Mwanzo"]
+    ["⬅️ Rudi Mwanzo"],
 ]
 
 # Voice menu keyboard for audio lessons
@@ -319,7 +319,7 @@ VOICE_MENU_KEYBOARD = [
     ["🔊 Bitcoin ni nini?", "🔊 P2P Inafanyaje"],
     ["🔊 Aina za Pochi", "🔊 Usalama wa Pochi"],
     ["🔊 Blockchain", "🔊 Maswali Mengine"],
-    ["⬅️ Rudi Mwanzo"]
+    ["⬅️ Rudi Mwanzo"],
 ]
 
 # Purchase platform information
@@ -327,37 +327,37 @@ PURCHASE_PLATFORMS = {
     "Bitika": {
         "url": "bitika.xyz",
         "description": "Jukwaa la kununua na kuuza Bitcoin kwa M-Pesa",
-        "features": ["M-Pesa", "Haraka", "Rahisi"]
+        "features": ["M-Pesa", "Haraka", "Rahisi"],
     },
     "Bitsacco": {
-        "url": "bitsacco.com", 
+        "url": "bitsacco.com",
         "description": "Jukwaa la P2P la Bitcoin kwa wafanya biashara",
-        "features": ["P2P", "Tathmini", "Usalama"]
+        "features": ["P2P", "Tathmini", "Usalama"],
     },
     "Fedi": {
         "url": "fedi.xyz",
         "description": "Pochi ya jamii ya Bitcoin",
-        "features": ["Jamii", "Lightning", "Rahisi"]
+        "features": ["Jamii", "Lightning", "Rahisi"],
     },
     "Tando": {
         "url": "tando.africa",
         "description": "Pochi rahisi ya Bitcoin ya Afrika",
-        "features": ["Afrika", "Rahisi", "Mobile"]
-    }
+        "features": ["Afrika", "Rahisi", "Mobile"],
+    },
 }
 
 # Lesson flow order for progressive learning
 LESSON_FLOW = [
-    "kwa_nini_bitcoin",      # 1. Why care?
-    "bitcoin_ni_nini",       # 2. What is Bitcoin?
-    "p2p_inafanyaje",        # 3. How it works
-    "kufungua_pochi",        # 4. Opening a wallet
-    "tofauti_pochi",         # 5. Wallet differences
-    "usalama_pochi",         # 6. Wallet security
-    "kupoteza_ufunguo",      # 7. Losing keys consequences
-    "mfano_matumizi",        # 8. Usage examples
-    "faida_na_hatari",       # 9. Benefits and risks
-    "blockchain_usalama",    # 10. Blockchain technology
-    "mpesa_guide",           # 11. Buy with M-Pesa
-    "maswali_mengine"        # 12. FAQ
+    "kwa_nini_bitcoin",  # 1. Why care?
+    "bitcoin_ni_nini",  # 2. What is Bitcoin?
+    "p2p_inafanyaje",  # 3. How it works
+    "kufungua_pochi",  # 4. Opening a wallet
+    "tofauti_pochi",  # 5. Wallet differences
+    "usalama_pochi",  # 6. Wallet security
+    "kupoteza_ufunguo",  # 7. Losing keys consequences
+    "mfano_matumizi",  # 8. Usage examples
+    "faida_na_hatari",  # 9. Benefits and risks
+    "blockchain_usalama",  # 10. Blockchain technology
+    "mpesa_guide",  # 11. Buy with M-Pesa
+    "maswali_mengine",  # 12. FAQ
 ]
