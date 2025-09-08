@@ -24,6 +24,9 @@ TELEGRAM_BOT_TOKEN = os.getenv(
     "8057866774:AAEMaLJKIyVVqyKn6hEt7tqVt3EzHXzUWno"
 )
 
+# Set environment variable for the bot
+os.environ["TELEGRAM_BOT_TOKEN"] = TELEGRAM_BOT_TOKEN
+
 # Global bot instance
 bot_instance = None
 bot_thread = None
@@ -141,7 +144,7 @@ if __name__ == "__main__":
         logger.info("=" * 50)
         
         # Validate configuration
-        if not TELEGRAM_BOT_TOKEN:
+        if not TELEGRAM_BOT_TOKEN or TELEGRAM_BOT_TOKEN == "your_telegram_bot_token_here":
             logger.error("❌ TELEGRAM_BOT_TOKEN is required")
             sys.exit(1)
         

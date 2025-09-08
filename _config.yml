@@ -1,0 +1,57 @@
+# Jekyll configuration for GitHub Pages
+# This file tells Jekyll to serve static files without processing
+
+# Disable Jekyll processing
+markdown: kramdown
+highlighter: rouge
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - .gitignore
+  - requirements.txt
+  - *.py
+  - *.pyc
+  - __pycache__/
+  - .env
+  - .env.example
+  - bot_config.py
+  - deployment_config.py
+  - config.py
+  - main.py
+  - server.py
+  - simple_server.py
+  - start_bot.py
+  - test_bot_connection.py
+  - webhook.py
+  - app/
+  - tests/
+  - logs/
+  - archive/
+  - api/
+  - *.db
+  - *.sqlite
+  - *.sqlite3
+  - Dockerfile
+  - Dockerfile.minimal
+  - Procfile
+  - nixpacks.toml
+  - railway.json
+  - railway-minimal.json
+  - requirements-minimal.txt
+  - setup.py
+  - PROJECT_DIAGNOSTIC_REPORT.md
+  - RAILWAY_DEPLOYMENT.md
+  - SETUP.md
+  - LICENSE
+  - .nojekyll
+
+# Include only the docs folder and root HTML files
+include:
+  - docs/
+  - index.html
+  - test.html
+
+# Set the base URL
+baseurl: "/bitmshauri-bot"
+url: "https://mwangaza-lab.github.io"
