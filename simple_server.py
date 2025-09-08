@@ -27,9 +27,7 @@ TELEGRAM_BOT_TOKEN = os.getenv(
 # Set environment variable for the bot
 os.environ["TELEGRAM_BOT_TOKEN"] = TELEGRAM_BOT_TOKEN
 
-# Global bot instance
-bot_instance = None
-bot_thread = None
+# Global variables
 
 
 class WebhookHandler(BaseHTTPRequestHandler):
@@ -76,11 +74,14 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 # Log the update
                 logger.info(f"Received update: {update_data.get('update_id', 'unknown')}")
                 
+                # Process the update
+                self.process_update(update_data)
+                
                 # Send response
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                response = {'status': 'ok', 'message': 'Update received'}
+                response = {'status': 'ok', 'message': 'Update processed'}
                 self.wfile.write(json.dumps(response).encode())
                 
             except Exception as e:
@@ -93,29 +94,91 @@ class WebhookHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b'Not found')
 
+    def process_update(self, update_data):
+        """Process Telegram update."""
+        try:
+            # Import here to avoid circular imports
+            from telegram import Update
+            import asyncio
+            
+            # Create Update object
+            update = Update.de_json(update_data, None)
+            
+            # Process the update
+            if update and update.message:
+                message = update.message
+                chat_id = message.chat_id
+                text = message.text
+                
+                logger.info(f"Processing message: {text} from chat {chat_id}")
+                
+                # Simple response logic
+                if text == '/start':
+                    response_text = "🎉 Karibu! Welcome to BitMshauri Bot!\n\nI'm here to help you learn about Bitcoin in Swahili and English.\n\nUse /help to see all available commands."
+                elif text == '/help':
+                    response_text = "📚 Available Commands:\n\n/start - Start the bot\n/help - Show this help message\n/price - Get Bitcoin price\n/language - Change language\n\nAsk me anything about Bitcoin!"
+                elif text and text.startswith('/'):
+                    response_text = f"❓ Command '{text}' not recognized. Use /help to see available commands."
+                else:
+                    response_text = f"👋 Hello! You said: {text}\n\nI'm BitMshauri Bot, your Bitcoin education assistant. Use /help to see what I can do!"
+                
+                # Send response
+                self.send_telegram_message(chat_id, response_text)
+                
+        except Exception as e:
+            logger.error(f"Error processing update: {e}")
+
+    def send_telegram_message(self, chat_id, text):
+        """Send message to Telegram."""
+        try:
+            import requests
+            
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+            data = {
+                'chat_id': chat_id,
+                'text': text,
+                'parse_mode': 'HTML'
+            }
+            
+            response = requests.post(url, data=data, timeout=10)
+            if response.status_code == 200:
+                logger.info(f"Message sent to chat {chat_id}")
+            else:
+                logger.error(f"Failed to send message: {response.status_code} - {response.text}")
+                
+        except Exception as e:
+            logger.error(f"Error sending message: {e}")
+
     def log_message(self, format, *args):
         """Override to use our logger."""
         logger.info(f"{self.address_string()} - {format % args}")
 
 
-def start_bot():
-    """Start the bot in a separate thread."""
-    global bot_instance
+def setup_webhook():
+    """Setup Telegram webhook."""
     try:
-        logger.info("🤖 Starting bot...")
+        import requests
         
-        # Import and start the bot
-        from app.clean_telegram_bot import CleanBitMshauriBot
-        import asyncio
+        # Get Railway URL from environment
+        railway_url = os.getenv("RAILWAY_PUBLIC_DOMAIN")
+        if not railway_url:
+            logger.warning("RAILWAY_PUBLIC_DOMAIN not set, webhook setup skipped")
+            return
         
-        bot_instance = CleanBitMshauriBot()
+        webhook_url = f"https://{railway_url}/webhook"
         
-        # Run the bot
-        asyncio.run(bot_instance.run())
+        # Set webhook
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/setWebhook"
+        data = {'url': webhook_url}
         
+        response = requests.post(url, data=data, timeout=10)
+        if response.status_code == 200:
+            logger.info(f"✅ Webhook set to: {webhook_url}")
+        else:
+            logger.error(f"❌ Failed to set webhook: {response.status_code} - {response.text}")
+            
     except Exception as e:
-        logger.error(f"Bot startup error: {e}")
-        # Don't exit, just log the error
+        logger.error(f"Error setting webhook: {e}")
 
 
 def start_server():
@@ -125,10 +188,8 @@ def start_server():
         logger.info(f"🚀 Server starting on {HOST}:{PORT}")
         logger.info(f"🤖 Bot Token: {TELEGRAM_BOT_TOKEN[:10]}...")
         
-        # Start bot in background thread
-        global bot_thread
-        bot_thread = Thread(target=start_bot, daemon=True)
-        bot_thread.start()
+        # Setup webhook
+        setup_webhook()
         
         # Start HTTP server
         server.serve_forever()
