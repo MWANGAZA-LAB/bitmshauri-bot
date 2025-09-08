@@ -1,6 +1,6 @@
-"""
-Clean BitMshauri Telegram Bot - Unified Version
-Consolidates all features with proper menu integration and command routing
+"""Clean BitMshauri Telegram Bot - Unified Version.
+
+Consolidates all features with proper menu integration and command routing.
 """
 
 import asyncio
@@ -9,40 +9,40 @@ from datetime import datetime
 from typing import Optional
 
 from telegram import (
-    Update,
-    ReplyKeyboardMarkup,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
+    ReplyKeyboardMarkup,
+    Update,
 )
 from telegram.ext import (
     Application,
+    CallbackContext,
+    CallbackQueryHandler,
     CommandHandler,
     MessageHandler,
-    CallbackQueryHandler,
     filters,
-    CallbackContext,
 )
 
-# Enhanced imports with proper error handling
-from app.utils.simple_database_manager import async_db_manager
-from app.utils.logger import logger
-from app.utils.input_validator import InputValidator
-from app.utils.performance_monitor import (
-    monitor_performance,
-    enhanced_rate_limiter,
-    start_performance_monitoring
-)
-from app.services.price_service import price_monitor
 from app.services.calculator import bitcoin_calculator
-from app.services.multi_language import multi_lang_bot
 from app.services.enhanced_audio import enhanced_audio
+from app.services.multi_language import multi_lang_bot
+from app.services.price_service import price_monitor
+from app.utils.input_validator import InputValidator
+from app.utils.logger import logger
+from app.utils.performance_monitor import (
+    enhanced_rate_limiter,
+    monitor_performance,
+    start_performance_monitoring,
+)
+from app.utils.simple_database_manager import async_db_manager
 from config import Config
 
 
 class CleanBitMshauriBot:
-    """Clean BitMshauri Bot with proper menu integration"""
+    """Clean BitMshauri Bot with proper menu integration."""
 
     def __init__(self):
+        """Initialize the bot."""
         self.app: Optional[Application] = None
         self.config = Config()
         self.validator = InputValidator()
@@ -59,7 +59,6 @@ class CleanBitMshauriBot:
             "💡 Kidokezo cha Leo": self._handle_daily_tip,
             "ℹ️ Msaada Zaidi": self._handle_help_request,
             "📝 Toa Maoni": self._handle_feedback_request,
-
             # Secondary menu items
             "🔗 P2P Inafanyaje": self._handle_lesson_request,
             "👛 Aina za Pochi": self._handle_lesson_request,
@@ -71,7 +70,6 @@ class CleanBitMshauriBot:
             "❓ Maswali Mengine": self._handle_ai_questions,
             "🎵 Masomo ya Sauti": self._handle_audio_request,
             "⬅️ Rudi Mwanzo": self._handle_main_menu,
-
             # English menu items
             "🌍 Why Bitcoin?": self._handle_lesson_request,
             "📚 What is Bitcoin?": self._handle_lesson_request,
@@ -98,8 +96,8 @@ class CleanBitMshauriBot:
             "📚 What is Bitcoin?": "what_is_bitcoin",
         }
 
-    def setup_logging(self):
-        """Configure enhanced logging"""
+    def setup_logging(self) -> None:
+        """Configure enhanced logging."""
         logging.basicConfig(
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             level=getattr(logging, self.config.LOG_LEVEL),
@@ -107,8 +105,8 @@ class CleanBitMshauriBot:
         self.logger = logging.getLogger(__name__)
 
     @monitor_performance("start_command")
-    async def start_command(self, update: Update, context: CallbackContext):
-        """Enhanced start command with proper validation and error handling"""
+    async def start_command(self, update: Update, context: CallbackContext) -> None:
+        """Enhanced start command with proper validation and error handling."""
         try:
             # Validate input
             user = update.effective_user
@@ -121,11 +119,11 @@ class CleanBitMshauriBot:
 
             # Add user to database with validation
             sanitized_data = {
-                'user_id': user_id,
-                'username': username,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'chat_id': update.effective_chat.id
+                "user_id": user_id,
+                "username": username,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "chat_id": update.effective_chat.id,
             }
 
             await async_db_manager.add_user(**sanitized_data)
@@ -157,10 +155,12 @@ class CleanBitMshauriBot:
             )
 
             await update.message.reply_photo(
-                photo=("https://upload.wikimedia.org/wikipedia/commons/"
-                       "thumb/4/46/Bitcoin.svg/1200px-Bitcoin.svg.png"),
+                photo=(
+                    "https://upload.wikimedia.org/wikipedia/commons/"
+                    "thumb/4/46/Bitcoin.svg/1200px-Bitcoin.svg.png"
+                ),
                 caption=full_welcome,
-                reply_markup=reply_markup
+                reply_markup=reply_markup,
             )
 
             # Log user start
@@ -181,8 +181,10 @@ class CleanBitMshauriBot:
             await self._send_error_message(update, "start_error")
 
     @monitor_performance("handle_message")
-    async def handle_message(self, update: Update, context: CallbackContext):
-        """Enhanced message handler with rate limiting and validation"""
+    async def handle_message(
+        self, update: Update, context: CallbackContext
+    ) -> None:
+        """Enhanced message handler with rate limiting and validation."""
         try:
             user_id = update.effective_user.id
 
@@ -216,9 +218,10 @@ class CleanBitMshauriBot:
             )
             await self._send_error_message(update, "message_error")
 
-    async def _route_message(self, update: Update, context: CallbackContext,
-                           text: str):
-        """Route message to appropriate handler with proper menu integration"""
+    async def _route_message(
+        self, update: Update, context: CallbackContext, text: str
+    ) -> None:
+        """Route message to appropriate handler with proper menu integration."""
         # Check if it's a menu option
         if text in self.menu_handlers:
             handler = self.menu_handlers[text]
@@ -239,15 +242,15 @@ class CleanBitMshauriBot:
             await self._handle_general_message(update, context, text)
 
     def _is_calculation_request(self, text: str) -> bool:
-        """Check if message is a calculation request"""
+        """Check if message is a calculation request."""
         validation_result = self.validator.validate_calculation_input(text)
         return validation_result.get("valid", False)
 
     @monitor_performance("handle_price_request")
-    async def _handle_price_request(self, update: Update,
-                                  context: CallbackContext,
-                                  menu_text: str = None):
-        """Handle Bitcoin price request with enhanced formatting"""
+    async def _handle_price_request(
+        self, update: Update, context: CallbackContext, menu_text: str = None
+    ) -> None:
+        """Handle Bitcoin price request with enhanced formatting."""
         try:
             user_id = update.effective_user.id
 
@@ -289,9 +292,10 @@ class CleanBitMshauriBot:
             await self._send_error_message(update, "price_error")
 
     @monitor_performance("handle_calculation")
-    async def _handle_calculation(self, update: Update, context: CallbackContext,
-                                text: str):
-        """Handle Bitcoin calculation requests with validation"""
+    async def _handle_calculation(
+        self, update: Update, context: CallbackContext, text: str
+    ) -> None:
+        """Handle Bitcoin calculation requests with validation."""
         try:
             user_id = update.effective_user.id
 
@@ -325,9 +329,10 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_calculation"})
             await self._send_error_message(update, "calculation_error")
 
-    async def _handle_lesson_request(self, update: Update,
-                                   context: CallbackContext, menu_text: str):
-        """Handle lesson content request with proper menu integration"""
+    async def _handle_lesson_request(
+        self, update: Update, context: CallbackContext, menu_text: str
+    ) -> None:
+        """Handle lesson content request with proper menu integration."""
         try:
             user_id = update.effective_user.id
 
@@ -381,9 +386,10 @@ class CleanBitMshauriBot:
             await self._send_error_message(update, "lesson_error")
 
     @monitor_performance("handle_quiz_start")
-    async def _handle_quiz_start(self, update: Update, context: CallbackContext,
-                               menu_text: str = None):
-        """Start quiz with enhanced features"""
+    async def _handle_quiz_start(
+        self, update: Update, context: CallbackContext, menu_text: str = None
+    ) -> None:
+        """Start quiz with enhanced features."""
         try:
             user_id = update.effective_user.id
 
@@ -405,7 +411,7 @@ class CleanBitMshauriBot:
                 return
 
             # Initialize quiz state
-            context.user_data['quiz_state'] = {
+            context.user_data["quiz_state"] = {
                 "questions": quiz_questions,
                 "current_question": 0,
                 "score": 0,
@@ -419,11 +425,12 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_quiz_start"})
             await self._send_error_message(update, "quiz_error")
 
-    async def _send_quiz_question(self, update: Update, context: CallbackContext,
-                                user_id: int):
-        """Send quiz question with audio option"""
+    async def _send_quiz_question(
+        self, update: Update, context: CallbackContext, user_id: int
+    ) -> None:
+        """Send quiz question with audio option."""
         try:
-            quiz_state = context.user_data.get('quiz_state')
+            quiz_state = context.user_data.get("quiz_state")
             if not quiz_state:
                 return
 
@@ -472,11 +479,12 @@ class CleanBitMshauriBot:
         except Exception as e:
             logger.log_error(e, {"operation": "send_quiz_question"})
 
-    async def _finish_quiz(self, update: Update, context: CallbackContext,
-                         user_id: int):
-        """Finish quiz and show results"""
+    async def _finish_quiz(
+        self, update: Update, context: CallbackContext, user_id: int
+    ) -> None:
+        """Finish quiz and show results."""
         try:
-            quiz_state = context.user_data.get('quiz_state', {})
+            quiz_state = context.user_data.get("quiz_state", {})
             questions = quiz_state.get("questions", [])
             score = quiz_state.get("score", 0)
             start_time = quiz_state.get("start_time", datetime.now())
@@ -511,7 +519,7 @@ class CleanBitMshauriBot:
             await update.message.reply_text(message, parse_mode="Markdown")
 
             # Clear quiz state
-            context.user_data.pop('quiz_state', None)
+            context.user_data.pop("quiz_state", None)
 
             logger.log_user_action(
                 user_id,
@@ -520,16 +528,17 @@ class CleanBitMshauriBot:
                     "score": score,
                     "total_questions": len(questions),
                     "percentage": percentage,
-                    "time_taken": time_taken
-                }
+                    "time_taken": time_taken,
+                },
             )
 
         except Exception as e:
             logger.log_error(e, {"operation": "finish_quiz"})
 
-    async def _handle_help_request(self, update: Update, context: CallbackContext,
-                                 menu_text: str = None):
-        """Enhanced help command"""
+    async def _handle_help_request(
+        self, update: Update, context: CallbackContext, menu_text: str = None
+    ) -> None:
+        """Enhanced help command."""
         try:
             user_id = update.effective_user.id
 
@@ -540,9 +549,10 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_help_request"})
             await self._send_error_message(update, "help_error")
 
-    async def _handle_daily_tip(self, update: Update, context: CallbackContext,
-                              menu_text: str = None):
-        """Handle daily tip request"""
+    async def _handle_daily_tip(
+        self, update: Update, context: CallbackContext, menu_text: str = None
+    ) -> None:
+        """Handle daily tip request."""
         try:
             user_id = update.effective_user.id
             tips = multi_lang_bot.get_daily_tips(user_id)
@@ -558,10 +568,10 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_daily_tip"})
             await self._send_error_message(update, "tip_error")
 
-    async def _handle_purchase_flow(self, update: Update,
-                                  context: CallbackContext,
-                                  menu_text: str = None):
-        """Handle Bitcoin purchase flow"""
+    async def _handle_purchase_flow(
+        self, update: Update, context: CallbackContext, menu_text: str = None
+    ) -> None:
+        """Handle Bitcoin purchase flow."""
         try:
             message = (
                 "🛒 **Kununua Bitcoin**\n\n"
@@ -575,10 +585,10 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_purchase_flow"})
             await self._send_error_message(update, "purchase_error")
 
-    async def _handle_audio_request(self, update: Update,
-                                  context: CallbackContext,
-                                  menu_text: str = None):
-        """Handle audio generation requests"""
+    async def _handle_audio_request(
+        self, update: Update, context: CallbackContext, menu_text: str = None
+    ) -> None:
+        """Handle audio generation requests."""
         try:
             user_id = update.effective_user.id
 
@@ -617,10 +627,10 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_audio_request"})
             await self._send_error_message(update, "audio_error")
 
-    async def _handle_ai_questions(self, update: Update,
-                                 context: CallbackContext,
-                                 menu_text: str = None):
-        """Handle AI questions request"""
+    async def _handle_ai_questions(
+        self, update: Update, context: CallbackContext, menu_text: str = None
+    ) -> None:
+        """Handle AI questions request."""
         try:
             message = (
                 "🤖 **Maswali ya AI**\n\n"
@@ -634,9 +644,10 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_ai_questions"})
             await self._send_error_message(update, "ai_error")
 
-    async def _handle_ai_answer(self, update: Update, context: CallbackContext,
-                              text: str):
-        """Handle AI answer generation"""
+    async def _handle_ai_answer(
+        self, update: Update, context: CallbackContext, text: str
+    ) -> None:
+        """Handle AI answer generation."""
         try:
             context.user_data["awaiting_ai_question"] = False
 
@@ -653,10 +664,10 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_ai_answer"})
             await self._send_error_message(update, "ai_error")
 
-    async def _handle_feedback_request(self, update: Update,
-                                     context: CallbackContext,
-                                     menu_text: str = None):
-        """Handle feedback request"""
+    async def _handle_feedback_request(
+        self, update: Update, context: CallbackContext, menu_text: str = None
+    ) -> None:
+        """Handle feedback request."""
         try:
             message = (
                 "📝 **Toa Maoni**\n\n"
@@ -671,9 +682,10 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_feedback_request"})
             await self._send_error_message(update, "feedback_error")
 
-    async def _handle_feedback_submission(self, update: Update,
-                                        context: CallbackContext, text: str):
-        """Handle feedback submission"""
+    async def _handle_feedback_submission(
+        self, update: Update, context: CallbackContext, text: str
+    ) -> None:
+        """Handle feedback submission."""
         try:
             user_id = update.effective_user.id
             context.user_data["awaiting_feedback"] = False
@@ -688,9 +700,10 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_feedback_submission"})
             await self._send_error_message(update, "feedback_error")
 
-    async def _handle_main_menu(self, update: Update, context: CallbackContext,
-                              menu_text: str = None):
-        """Handle main menu return"""
+    async def _handle_main_menu(
+        self, update: Update, context: CallbackContext, menu_text: str = None
+    ) -> None:
+        """Handle main menu return."""
         try:
             user_id = update.effective_user.id
 
@@ -711,9 +724,10 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_main_menu"})
             await self._send_error_message(update, "menu_error")
 
-    async def _handle_general_message(self, update: Update,
-                                    context: CallbackContext, text: str):
-        """Handle general messages"""
+    async def _handle_general_message(
+        self, update: Update, context: CallbackContext, text: str
+    ) -> None:
+        """Handle general messages."""
         try:
             # Provide helpful response
             message = (
@@ -727,8 +741,8 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_general_message"})
             await self._send_error_message(update, "general_error")
 
-    async def _send_error_message(self, update: Update, error_type: str):
-        """Send localized error message"""
+    async def _send_error_message(self, update: Update, error_type: str) -> None:
+        """Send localized error message."""
         try:
             user_id = update.effective_user.id
             error_message = multi_lang_bot.get_response(user_id, "error_occurred")
@@ -738,9 +752,10 @@ class CleanBitMshauriBot:
             await update.message.reply_text("Samahani, kuna tatizo. Jaribu tena.")
 
     @monitor_performance("handle_callback_query")
-    async def handle_callback_query(self, update: Update,
-                                  context: CallbackContext):
-        """Handle inline keyboard callbacks with validation"""
+    async def handle_callback_query(
+        self, update: Update, context: CallbackContext
+    ) -> None:
+        """Handle inline keyboard callbacks with validation."""
         try:
             query = update.callback_query
             await query.answer()
@@ -772,9 +787,10 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "handle_callback_query"})
             await self._send_error_message(update, "callback_error")
 
-    async def _handle_quiz_callback(self, update: Update, context: CallbackContext,
-                                  data: str):
-        """Handle quiz-related callbacks"""
+    async def _handle_quiz_callback(
+        self, update: Update, context: CallbackContext, data: str
+    ) -> None:
+        """Handle quiz-related callbacks."""
         try:
             query = update.callback_query
 
@@ -785,7 +801,7 @@ class CleanBitMshauriBot:
 
             # Handle quiz answer
             answer_index = int(data.split("_")[1])
-            quiz_state = context.user_data.get('quiz_state')
+            quiz_state = context.user_data.get("quiz_state")
 
             if not quiz_state:
                 await query.edit_message_text("Quiz state not found")
@@ -824,9 +840,10 @@ class CleanBitMshauriBot:
         except Exception as e:
             logger.log_error(e, {"operation": "handle_quiz_callback"})
 
-    async def _handle_voice_callback(self, update: Update,
-                                   context: CallbackContext, data: str):
-        """Handle voice selection callbacks"""
+    async def _handle_voice_callback(
+        self, update: Update, context: CallbackContext, data: str
+    ) -> None:
+        """Handle voice selection callbacks."""
         try:
             query = update.callback_query
 
@@ -843,9 +860,10 @@ class CleanBitMshauriBot:
         except Exception as e:
             logger.log_error(e, {"operation": "handle_voice_callback"})
 
-    async def _handle_audio_lesson_callback(self, update: Update,
-                                          context: CallbackContext, data: str):
-        """Handle audio lesson callbacks"""
+    async def _handle_audio_lesson_callback(
+        self, update: Update, context: CallbackContext, data: str
+    ) -> None:
+        """Handle audio lesson callbacks."""
         try:
             query = update.callback_query
 
@@ -860,9 +878,10 @@ class CleanBitMshauriBot:
         except Exception as e:
             logger.log_error(e, {"operation": "handle_audio_lesson_callback"})
 
-    async def _handle_price_alert_callback(self, update: Update,
-                                         context: CallbackContext):
-        """Handle price alert setup callbacks"""
+    async def _handle_price_alert_callback(
+        self, update: Update, context: CallbackContext
+    ) -> None:
+        """Handle price alert setup callbacks."""
         try:
             query = update.callback_query
 
@@ -874,8 +893,8 @@ class CleanBitMshauriBot:
         except Exception as e:
             logger.log_error(e, {"operation": "handle_price_alert_callback"})
 
-    def setup_handlers(self):
-        """Setup all command and message handlers"""
+    def setup_handlers(self) -> None:
+        """Setup all command and message handlers."""
         # Command handlers
         self.app.add_handler(CommandHandler("start", self.start_command))
         self.app.add_handler(CommandHandler("help", self._handle_help_request))
@@ -890,8 +909,8 @@ class CleanBitMshauriBot:
             )
         )
 
-    async def run(self):
-        """Run the bot with proper initialization"""
+    async def run(self) -> None:
+        """Run the bot with proper initialization."""
         try:
             # Initialize database
             await async_db_manager.initialize()
@@ -918,8 +937,8 @@ class CleanBitMshauriBot:
             logger.log_error(e, {"operation": "run_bot"})
             self.logger.error(f"Failed to start bot: {e}")
 
-    async def _start_background_tasks(self):
-        """Start background tasks like price monitoring"""
+    async def _start_background_tasks(self) -> None:
+        """Start background tasks like price monitoring."""
         try:
             # Start price monitoring
             await price_monitor.start_monitoring()
@@ -935,8 +954,8 @@ class CleanBitMshauriBot:
         except Exception as e:
             logger.log_error(e, {"operation": "start_background_tasks"})
 
-    async def shutdown(self):
-        """Graceful shutdown"""
+    async def shutdown(self) -> None:
+        """Graceful shutdown."""
         try:
             if self.app:
                 await self.app.stop()
@@ -947,8 +966,8 @@ class CleanBitMshauriBot:
 
 
 # Create and run bot instance
-async def main():
-    """Main entry point"""
+async def main() -> None:
+    """Main entry point."""
     bot = CleanBitMshauriBot()
     try:
         await bot.run()

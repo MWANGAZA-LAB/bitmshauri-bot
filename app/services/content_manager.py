@@ -1,14 +1,18 @@
+"""Dynamic content management system with multi-language support."""
+
 import json
 import os
-from typing import Dict, List, Optional, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 from app.utils.logger import logger
 
 
 class ContentManager:
-    """Dynamic content management system with multi-language support"""
+    """Dynamic content management system with multi-language support."""
 
     def __init__(self):
+        """Initialize the content manager."""
         self.content_cache = {}
         self.supported_languages = ["sw", "en"]  # Swahili and English
         self.content_version = "1.0"
@@ -20,8 +24,8 @@ class ContentManager:
         # Load content on initialization
         self._load_all_content()
 
-    def _load_all_content(self):
-        """Load all content from files and cache"""
+    def _load_all_content(self) -> None:
+        """Load all content from files and cache."""
         try:
             for language in self.supported_languages:
                 self._load_language_content(language)
@@ -29,8 +33,8 @@ class ContentManager:
         except Exception as e:
             logger.log_error(e, {"operation": "load_all_content"})
 
-    def _load_language_content(self, language: str):
-        """Load content for specific language"""
+    def _load_language_content(self, language: str) -> None:
+        """Load content for specific language."""
         try:
             content_file = os.path.join(
                 self.content_directory, f"content_{language}.json"
@@ -49,18 +53,17 @@ class ContentManager:
             logger.logger.info(f"Loaded content for language: {language}")
 
         except Exception as e:
-            logger.log_error(
-                e, {"operation": "load_language_content", "language": language}
-            )
+            logger.log_error(e, {"operation": "load_language_content"})
             # Fallback to default content
             self.content_cache[language] = self._get_default_content(language)
 
-    def _save_language_content(self, language: str):
-        """Save content for specific language"""
+    def _save_language_content(self, language: str) -> None:
+        """Save content for specific language to file."""
         try:
             content_file = os.path.join(
                 self.content_directory, f"content_{language}.json"
             )
+
             with open(content_file, "w", encoding="utf-8") as f:
                 json.dump(
                     self.content_cache[language],
@@ -69,404 +72,326 @@ class ContentManager:
                     indent=2,
                 )
 
+            logger.logger.info(f"Saved content for language: {language}")
+
         except Exception as e:
-            logger.log_error(
-                e, {"operation": "save_language_content", "language": language}
-            )
+            logger.log_error(e, {"operation": "save_language_content"})
 
-    def _get_default_content(self, language: str) -> Dict:
-        """Get default content for language"""
+    def _get_default_content(self, language: str) -> Dict[str, Any]:
+        """Get default content for language."""
         if language == "sw":
-            return self._get_swahili_content()
-        elif language == "en":
-            return self._get_english_content()
-        else:
-            return {}
-
-    def _get_swahili_content(self) -> Dict:
-        """Default Swahili content"""
-        return {
-            "lessons": {
-                "intro": {
-                    "title": "Utangulizi wa BitMshauri",
-                    "content": "Habari! Mimi ni BitMshauri, msaidizi wako wa Bitcoin kwa Kiswahili. Chagua moja ya chaguo hapa chini:",
-                    "category": "basic",
-                    "duration_minutes": 2,
-                    "difficulty": "beginner",
+            return {
+                "welcome": "Karibu kwenye BitMshauri! Mimi ni msaidizi wako wa Bitcoin.",
+                "help_command": (
+                    "🆘 **Msaada wa BitMshauri**\n\n"
+                    "Mimi ni msaidizi wako wa Bitcoin. Ninaweza kukusaidia:\n\n"
+                    "📚 **Masomo ya Bitcoin**\n"
+                    "• Kujifunza Bitcoin kwa urahisi\n"
+                    "• Masomo ya sauti na maandishi\n"
+                    "• Jaribio la maarifa\n\n"
+                    "💰 **Hesabu za Bei**\n"
+                    "• Bei ya Bitcoin ya sasa\n"
+                    "• Kubadilisha pesa kuwa Bitcoin\n"
+                    "• Hesabu za faida na hasara\n\n"
+                    "💡 **Kidokezo cha Leo**\n"
+                    "• Vidokezo vya Bitcoin kila siku\n"
+                    "• Habari za soko\n\n"
+                    "Tumia menu hapa chini au andika swali lako!"
+                ),
+                "error_occurred": (
+                    "Samahani, kuna tatizo kiufundi. "
+                    "Tafadhali jaribu tena baadaye."
+                ),
+                "lessons": {
+                    "intro": {
+                        "title": "Utangulizi wa Bitcoin",
+                        "content": (
+                            "🌟 **Karibu kwenye BitMshauri!**\n\n"
+                            "Bitcoin ni pesa ya kidijitali ambayo inaweza "
+                            "kutumika kwa njia ya P2P (peer-to-peer) bila "
+                            "kuhitaji benki au mamlaka ya kati.\n\n"
+                            "**Faida za Bitcoin:**\n"
+                            "• Usalama na uwazi\n"
+                            "• Haraka na rahisi\n"
+                            "• Bei ya kimataifa\n"
+                            "• Hifadhi ya thamani\n\n"
+                            "Anza kujifunza Bitcoin leo!"
+                        ),
+                    },
+                    "kwa_nini_bitcoin": {
+                        "title": "Kwa Nini Bitcoin?",
+                        "content": (
+                            "🤔 **Kwa Nini Bitcoin?**\n\n"
+                            "Bitcoin ina faida nyingi zaidi ya pesa za kawaida:\n\n"
+                            "**1. Uhuru wa Kifedha**\n"
+                            "• Huna mamlaka ya kati\n"
+                            "• Unaweza kutumia wakati wowote\n"
+                            "• Hakuna mipaka ya nchi\n\n"
+                            "**2. Usalama**\n"
+                            "• Teknolojia ya blockchain\n"
+                            "• Siri ya kibinafsi\n"
+                            "• Hakuna uwezo wa kufanywa bandia\n\n"
+                            "**3. Bei ya Kimataifa**\n"
+                            "• Bei moja duniani kote\n"
+                            "• Hakuna malipo ya uhamisho\n"
+                            "• Haraka zaidi ya benki\n\n"
+                            "Bitcoin ni siku za usoni za pesa!"
+                        ),
+                    },
                 },
-                "kwa_nini_bitcoin": {
-                    "title": "Kwa Nini Bitcoin?",
-                    "content": (
-                        "🌍 *Kwa Nini Utumie Bitcoin?*\n\n"
-                        "Watu wengi hawajui kwanini Bitcoin ni muhimu. Hapa kuna sababu kuu:\n\n"
-                        "🔐 *Uhuru wa Fedha:*\n"
-                        "- Bitcoin haidhibitiwi na benki au serikali\n"
-                        "- Wewe pekee unadhibiti pesa zako\n\n"
-                        "💸 *Malipo ya Haraka na Nafuu:*\n"
-                        "- Tuma pesa kwa mtu yeyote duniani papo hapo\n"
-                        "- Gharama ni ndogo sana ukilinganisha na benki au M-Pesa\n\n"
-                        "📉 *Ulinzi dhidi ya mfumuko wa bei:*\n"
-                        "- Bitcoin haitolewi kiholela kama sarafu za kawaida\n"
-                        "- Ni 21 milioni tu zitawahi kuwepo\n\n"
-                        "📱 *Ufikiaji kwa Wote:*\n"
-                        "- Hata ukiwa kijijini, unaweza kutumia Bitcoin na simu ya mkononi\n\n"
-                        "_Bitcoin ni njia mpya ya kifedha, inayokupa uhuru, usalama, na uwezo wa kushiriki katika uchumi wa kidijitali._"
-                    ),
-                    "category": "basic",
-                    "duration_minutes": 5,
-                    "difficulty": "beginner",
+                "menu": [
+                    ["🌍 Kwa Nini Bitcoin?", "📚 Bitcoin ni nini?"],
+                    ["💰 Bei ya Bitcoin", "📝 Jaribio la Bitcoin"],
+                    ["🛒 Nunua Bitcoin", "💡 Kidokezo cha Leo"],
+                    ["ℹ️ Msaada Zaidi", "📝 Toa Maoni"],
+                ],
+            }
+        else:  # English
+            return {
+                "welcome": "Welcome to BitMshauri! I'm your Bitcoin assistant.",
+                "help_command": (
+                    "🆘 **BitMshauri Help**\n\n"
+                    "I'm your Bitcoin assistant. I can help you with:\n\n"
+                    "📚 **Bitcoin Learning**\n"
+                    "• Learn Bitcoin easily\n"
+                    "• Audio and text lessons\n"
+                    "• Knowledge quizzes\n\n"
+                    "💰 **Price Calculations**\n"
+                    "• Current Bitcoin price\n"
+                    "• Convert money to Bitcoin\n"
+                    "• Profit and loss calculations\n\n"
+                    "💡 **Daily Tips**\n"
+                    "• Daily Bitcoin tips\n"
+                    "• Market news\n\n"
+                    "Use the menu below or ask me a question!"
+                ),
+                "error_occurred": (
+                    "Sorry, there's a technical issue. "
+                    "Please try again later."
+                ),
+                "lessons": {
+                    "intro": {
+                        "title": "Bitcoin Introduction",
+                        "content": (
+                            "🌟 **Welcome to BitMshauri!**\n\n"
+                            "Bitcoin is digital money that can be used "
+                            "peer-to-peer without needing a bank or "
+                            "central authority.\n\n"
+                            "**Bitcoin Benefits:**\n"
+                            "• Security and transparency\n"
+                            "• Fast and easy\n"
+                            "• Global price\n"
+                            "• Store of value\n\n"
+                            "Start learning Bitcoin today!"
+                        ),
+                    },
+                    "why_bitcoin": {
+                        "title": "Why Bitcoin?",
+                        "content": (
+                            "🤔 **Why Bitcoin?**\n\n"
+                            "Bitcoin has many advantages over regular money:\n\n"
+                            "**1. Financial Freedom**\n"
+                            "• No central authority\n"
+                            "• Use anytime\n"
+                            "• No country borders\n\n"
+                            "**2. Security**\n"
+                            "• Blockchain technology\n"
+                            "• Personal privacy\n"
+                            "• Cannot be counterfeited\n\n"
+                            "**3. Global Price**\n"
+                            "• Same price worldwide\n"
+                            "• No transfer fees\n"
+                            "• Faster than banks\n\n"
+                            "Bitcoin is the future of money!"
+                        ),
+                    },
                 },
-            },
-            "quizzes": {
-                "msingi": [
-                    {
-                        "question": "Bitcoin inasimamiwa na nani?",
-                        "options": [
-                            "Benki Kuu",
-                            "Serikali",
-                            "Hakuna mtu",
-                            "Kampuni ya Bitcoin",
-                        ],
-                        "answer": 2,
-                        "explanation": "Bitcoin ni mtandao wa peer-to-peer usiosimamiwa na mtu au taasisi yoyote.",
-                    }
-                ]
-            },
-            "daily_tips": [
-                "💡 Bitcoin ni sarafu ya kidijitali ya kwanza ulimwenguni",
-                "🔐 Hifadhi seed phrase yako kwa usalama mkubwa",
-                "📚 Soma na ujifunze kabla ya kuwekeza",
-            ],
-            "menu_keyboard": [
-                ["🌍 Kwa Nini Bitcoin?", "📚 Bitcoin ni nini?"],
-                ["💰 Bei ya Bitcoin", "📝 Jaribio la Bitcoin"],
-                ["🛒 Nunua Bitcoin", "💡 Kidokezo cha Leo"],
-                ["ℹ️ Msaada Zaidi", "📝 Toa Maoni"],
-            ],
-            "secondary_menu_keyboard": [
-                ["🔗 P2P Inafanyaje", "👛 Aina za Pochi"],
-                ["🔒 Usalama wa Pochi", "⚠️ Kupoteza Ufunguo"],
-                ["📱 Matumizi ya Pochi", "⚖️ Faida na Hatari"],
-                ["🔐 Teknolojia ya Blockchain", "❓ Maswali Mengine"],
-                ["🎵 Masomo ya Sauti", "⬅️ Rudi Mwanzo"],
-            ],
-        }
-
-    def _get_english_content(self) -> Dict:
-        """Default English content"""
-        return {
-            "lessons": {
-                "intro": {
-                    "title": "Welcome to BitMshauri",
-                    "content": "Hello! I'm BitMshauri, your Bitcoin assistant in multiple languages. Choose an option below:",
-                    "category": "basic",
-                    "duration_minutes": 2,
-                    "difficulty": "beginner",
-                },
-                "why_bitcoin": {
-                    "title": "Why Bitcoin?",
-                    "content": (
-                        "🌍 *Why Use Bitcoin?*\n\n"
-                        "Many people don't understand why Bitcoin is important. Here are the key reasons:\n\n"
-                        "🔐 *Financial Freedom:*\n"
-                        "- Bitcoin is not controlled by banks or governments\n"
-                        "- You alone control your money\n\n"
-                        "💸 *Fast and Cheap Payments:*\n"
-                        "- Send money to anyone worldwide instantly\n"
-                        "- Very low fees compared to banks or traditional services\n\n"
-                        "📉 *Protection Against Inflation:*\n"
-                        "- Bitcoin cannot be printed endlessly like traditional currencies\n"
-                        "- Only 21 million will ever exist\n\n"
-                        "📱 *Accessible to Everyone:*\n"
-                        "- Even in rural areas, you can use Bitcoin with a mobile phone\n\n"
-                        "_Bitcoin is a new form of money that gives you freedom, security, and the ability to participate in the digital economy._"
-                    ),
-                    "category": "basic",
-                    "duration_minutes": 5,
-                    "difficulty": "beginner",
-                },
-            },
-            "quizzes": {
-                "basic": [
-                    {
-                        "question": "Who controls Bitcoin?",
-                        "options": [
-                            "Central Bank",
-                            "Government",
-                            "No one",
-                            "Bitcoin Company",
-                        ],
-                        "answer": 2,
-                        "explanation": "Bitcoin is a peer-to-peer network not controlled by any person or institution.",
-                    }
-                ]
-            },
-            "daily_tips": [
-                "💡 Bitcoin is the world's first digital currency",
-                "🔐 Keep your seed phrase extremely secure",
-                "📚 Learn before you invest",
-            ],
-            "menu_keyboard": [
-                ["🌍 Why Bitcoin?", "📚 What is Bitcoin?"],
-                ["💰 Bitcoin Price", "📝 Bitcoin Quiz"],
-                ["🛒 Buy Bitcoin", "💡 Daily Tip"],
-                ["ℹ️ More Help", "📝 Feedback"],
-            ],
-            "secondary_menu_keyboard": [
-                ["🔗 How P2P Works", "👛 Wallet Types"],
-                ["🔒 Wallet Security", "⚠️ Lost Keys"],
-                ["📱 Using Wallets", "⚖️ Risks & Benefits"],
-                ["🔐 Blockchain Tech", "❓ More Questions"],
-                ["🎵 Audio Lessons", "⬅️ Back to Main"],
-            ],
-        }
+                "menu": [
+                    ["🌍 Why Bitcoin?", "📚 What is Bitcoin?"],
+                    ["💰 Bitcoin Price", "📝 Bitcoin Quiz"],
+                    ["🛒 Buy Bitcoin", "💡 Daily Tip"],
+                    ["ℹ️ More Help", "📝 Feedback"],
+                ],
+            }
 
     def get_content(
-        self, content_type: str, content_key: str, language: str = "sw"
+        self, language: str, content_type: str, key: str = None
     ) -> Optional[Any]:
-        """Get specific content item"""
+        """Get content for specific language and type."""
         try:
             if language not in self.content_cache:
-                return None
+                language = "sw"  # Fallback to Swahili
 
-            content = self.content_cache[language].get(content_type, {})
-            return content.get(content_key)
+            content = self.content_cache.get(language, {})
+
+            if content_type == "lesson" and key:
+                return content.get("lessons", {}).get(key)
+            elif content_type == "response":
+                return content.get(key)
+            elif content_type == "menu":
+                return content.get("menu", [])
+            else:
+                return content.get(content_type)
 
         except Exception as e:
-            logger.log_error(
-                e,
-                {
-                    "operation": "get_content",
-                    "content_type": content_type,
-                    "content_key": content_key,
-                    "language": language,
-                },
-            )
+            logger.log_error(e, {"operation": "get_content"})
             return None
 
-    def get_lesson(
-        self, lesson_key: str, language: str = "sw"
-    ) -> Optional[Dict]:
-        """Get lesson content"""
-        return self.get_content("lessons", lesson_key, language)
+    def get_lesson(self, language: str, lesson_key: str) -> Optional[Dict[str, Any]]:
+        """Get specific lesson content."""
+        return self.get_content(language, "lesson", lesson_key)
 
-    def get_quiz(self, quiz_name: str, language: str = "sw") -> Optional[List]:
-        """Get quiz questions"""
-        return self.get_content("quizzes", quiz_name, language)
+    def get_response(self, language: str, response_key: str) -> Optional[str]:
+        """Get specific response text."""
+        return self.get_content(language, "response", response_key)
 
-    def get_menu_keyboard(self, language: str = "sw") -> Optional[List]:
-        """Get menu keyboard layout"""
-        return self.get_content("menu_keyboard", "", language)
-
-    def get_secondary_menu_keyboard(
-        self, language: str = "sw"
-    ) -> Optional[List]:
-        """Get secondary menu keyboard layout"""
-        return self.get_content("secondary_menu_keyboard", "", language)
-
-    def get_daily_tips(self, language: str = "sw") -> Optional[List]:
-        """Get daily tips"""
-        return self.get_content("daily_tips", "", language)
+    def get_menu_keyboard(self, language: str) -> List[List[str]]:
+        """Get menu keyboard for language."""
+        menu = self.get_content(language, "menu")
+        return menu if menu else []
 
     def update_content(
-        self,
-        content_type: str,
-        content_key: str,
-        content_data: Any,
-        language: str = "sw",
+        self, language: str, content_type: str, key: str, value: Any
     ) -> bool:
-        """Update content item"""
+        """Update content dynamically."""
         try:
             if language not in self.content_cache:
                 self.content_cache[language] = {}
 
-            if content_type not in self.content_cache[language]:
-                self.content_cache[language][content_type] = {}
-
-            if content_key:
-                self.content_cache[language][content_type][
-                    content_key
-                ] = content_data
-            else:
-                self.content_cache[language][content_type] = content_data
+            if content_type == "lesson":
+                if "lessons" not in self.content_cache[language]:
+                    self.content_cache[language]["lessons"] = {}
+                self.content_cache[language]["lessons"][key] = value
+            elif content_type == "response":
+                self.content_cache[language][key] = value
+            elif content_type == "menu":
+                self.content_cache[language]["menu"] = value
 
             # Save to file
             self._save_language_content(language)
 
-            logger.log_user_action(
-                None,
-                "content_updated",
-                {
-                    "content_type": content_type,
-                    "content_key": content_key,
-                    "language": language,
-                },
+            logger.logger.info(
+                f"Updated content: {language}/{content_type}/{key}"
             )
-
             return True
 
         except Exception as e:
-            logger.log_error(
-                e,
-                {
-                    "operation": "update_content",
-                    "content_type": content_type,
-                    "content_key": content_key,
-                    "language": language,
-                },
-            )
+            logger.log_error(e, {"operation": "update_content"})
             return False
 
     def add_lesson(
-        self, lesson_key: str, lesson_data: Dict, language: str = "sw"
+        self, language: str, lesson_key: str, title: str, content: str
     ) -> bool:
-        """Add new lesson"""
-        lesson_data["created_at"] = datetime.now().isoformat()
-        lesson_data["version"] = self.content_version
-        return self.update_content(
-            "lessons", lesson_key, lesson_data, language
-        )
+        """Add new lesson."""
+        lesson_data = {
+            "title": title,
+            "content": content,
+            "created_at": datetime.now().isoformat(),
+        }
+        return self.update_content(language, "lesson", lesson_key, lesson_data)
 
-    def add_quiz_question(
-        self, quiz_name: str, question_data: Dict, language: str = "sw"
-    ) -> bool:
-        """Add question to quiz"""
-        try:
-            quiz = self.get_quiz(quiz_name, language) or []
-            quiz.append(question_data)
-            return self.update_content("quizzes", quiz_name, quiz, language)
-        except Exception as e:
-            logger.log_error(e, {"operation": "add_quiz_question"})
-            return False
+    def get_all_lessons(self, language: str) -> Dict[str, Any]:
+        """Get all lessons for language."""
+        return self.get_content(language, "lesson") or {}
 
-    def get_content_analytics(self) -> Dict:
-        """Get content analytics and statistics"""
+    def get_supported_languages(self) -> List[str]:
+        """Get list of supported languages."""
+        return self.supported_languages.copy()
+
+    def is_language_supported(self, language: str) -> bool:
+        """Check if language is supported."""
+        return language in self.supported_languages
+
+    def get_content_stats(self) -> Dict[str, Any]:
+        """Get content statistics."""
         try:
-            analytics = {
-                "languages": list(self.content_cache.keys()),
-                "content_summary": {},
+            stats = {
+                "supported_languages": len(self.supported_languages),
+                "languages": {},
+                "total_lessons": 0,
+                "content_version": self.content_version,
             }
 
-            for language, content in self.content_cache.items():
-                analytics["content_summary"][language] = {
-                    "lessons": len(content.get("lessons", {})),
-                    "quizzes": len(content.get("quizzes", {})),
-                    "daily_tips": len(content.get("daily_tips", [])),
-                    "last_updated": datetime.now().isoformat(),
+            for language in self.supported_languages:
+                content = self.content_cache.get(language, {})
+                lessons = content.get("lessons", {})
+                stats["languages"][language] = {
+                    "lessons_count": len(lessons),
+                    "has_menu": "menu" in content,
+                    "has_responses": any(
+                        key in content
+                        for key in ["welcome", "help_command", "error_occurred"]
+                    ),
                 }
+                stats["total_lessons"] += len(lessons)
 
-            return analytics
+            return stats
 
         except Exception as e:
-            logger.log_error(e, {"operation": "get_content_analytics"})
+            logger.log_error(e, {"operation": "get_content_stats"})
             return {}
 
-    def validate_content(self, language: str = None) -> Dict:
-        """Validate content for completeness and consistency"""
+    def reload_content(self, language: str = None) -> bool:
+        """Reload content from files."""
         try:
-            languages_to_check = (
-                [language] if language else self.supported_languages
-            )
-            validation_results = {}
+            if language:
+                self._load_language_content(language)
+            else:
+                self._load_all_content()
 
-            for lang in languages_to_check:
-                if lang not in self.content_cache:
-                    validation_results[lang] = {
-                        "status": "missing",
-                        "issues": ["Content not loaded"],
-                    }
-                    continue
-
-                content = self.content_cache[lang]
-                issues = []
-
-                # Check required sections
-                required_sections = [
-                    "lessons",
-                    "quizzes",
-                    "daily_tips",
-                    "menu_keyboard",
-                ]
-                for section in required_sections:
-                    if section not in content:
-                        issues.append(f"Missing section: {section}")
-
-                # Check lesson completeness
-                lessons = content.get("lessons", {})
-                for lesson_key, lesson_data in lessons.items():
-                    if not isinstance(lesson_data, dict):
-                        issues.append(f"Lesson {lesson_key}: Invalid format")
-                    elif "content" not in lesson_data:
-                        issues.append(f"Lesson {lesson_key}: Missing content")
-
-                # Check quiz validity
-                quizzes = content.get("quizzes", {})
-                for quiz_name, quiz_data in quizzes.items():
-                    if not isinstance(quiz_data, list):
-                        issues.append(f"Quiz {quiz_name}: Should be a list")
-                    else:
-                        for i, question in enumerate(quiz_data):
-                            if not all(
-                                key in question
-                                for key in ["question", "options", "answer"]
-                            ):
-                                issues.append(
-                                    f"Quiz {quiz_name}, Question {i+1}: Missing required fields"
-                                )
-
-                validation_results[lang] = {
-                    "status": "valid" if not issues else "invalid",
-                    "issues": issues,
-                    "total_lessons": len(lessons),
-                    "total_quizzes": len(quizzes),
-                }
-
-            return validation_results
+            logger.logger.info(f"Reloaded content for {language or 'all languages'}")
+            return True
 
         except Exception as e:
-            logger.log_error(e, {"operation": "validate_content"})
-            return {"error": str(e)}
+            logger.log_error(e, {"operation": "reload_content"})
+            return False
+
+    def backup_content(self, backup_path: str = None) -> bool:
+        """Backup all content to file."""
+        try:
+            if not backup_path:
+                backup_path = f"content_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+
+            with open(backup_path, "w", encoding="utf-8") as f:
+                json.dump(
+                    {
+                        "backup_timestamp": datetime.now().isoformat(),
+                        "content_version": self.content_version,
+                        "content": self.content_cache,
+                    },
+                    f,
+                    ensure_ascii=False,
+                    indent=2,
+                )
+
+            logger.logger.info(f"Content backed up to: {backup_path}")
+            return True
+
+        except Exception as e:
+            logger.log_error(e, {"operation": "backup_content"})
+            return False
+
+    def restore_content(self, backup_path: str) -> bool:
+        """Restore content from backup file."""
+        try:
+            with open(backup_path, "r", encoding="utf-8") as f:
+                backup_data = json.load(f)
+
+            self.content_cache = backup_data.get("content", {})
+            self.content_version = backup_data.get("content_version", "1.0")
+
+            # Save restored content
+            for language in self.supported_languages:
+                if language in self.content_cache:
+                    self._save_language_content(language)
+
+            logger.logger.info(f"Content restored from: {backup_path}")
+            return True
+
+        except Exception as e:
+            logger.log_error(e, {"operation": "restore_content"})
+            return False
 
 
 # Global content manager instance
 content_manager = ContentManager()
-
-
-# Helper functions for backward compatibility
-def safe_get_lesson(lesson_key: str, language: str = "sw") -> str:
-    """Get lesson content with fallback"""
-    lesson = content_manager.get_lesson(lesson_key, language)
-    if lesson and isinstance(lesson, dict):
-        return lesson.get(
-            "content", f"Samahani, somo '{lesson_key}' halipatikani."
-        )
-    return f"Samahani, somo '{lesson_key}' halipatikani."
-
-
-def get_lessons_dict(language: str = "sw") -> Dict:
-    """Get all lessons as dictionary for backward compatibility"""
-    lessons = content_manager.get_content("lessons", "", language) or {}
-    return {
-        key: {"content": lesson.get("content", "")}
-        for key, lesson in lessons.items()
-    }
-
-
-def get_menu_keyboard(language: str = "sw") -> List:
-    """Get menu keyboard for backward compatibility"""
-    return content_manager.get_menu_keyboard(language) or []
-
-
-def get_secondary_menu_keyboard(language: str = "sw") -> List:
-    """Get secondary menu keyboard for backward compatibility"""
-    return content_manager.get_secondary_menu_keyboard(language) or []
-
-
-def get_quizzes_dict(language: str = "sw") -> Dict:
-    """Get all quizzes as dictionary for backward compatibility"""
-    return content_manager.get_content("quizzes", "", language) or {}
-
-
-def get_daily_tips_list(language: str = "sw") -> List:
-    """Get daily tips as list for backward compatibility"""
-    return content_manager.get_daily_tips(language) or []

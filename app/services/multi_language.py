@@ -1,13 +1,17 @@
+"""Multi-language support system for BitMshauri Bot."""
+
 import re
 from typing import Dict, List, Optional, Tuple
-from app.utils.logger import logger
+
 from app.services.content_manager import content_manager
+from app.utils.logger import logger
 
 
 class LanguageDetector:
-    """Automatic language detection for user messages"""
+    """Automatic language detection for user messages."""
 
     def __init__(self):
+        """Initialize the language detector."""
         # Swahili keywords and patterns
         self.swahili_patterns = [
             # Common Swahili words
@@ -38,7 +42,7 @@ class LanguageDetector:
         )
 
     def detect_language(self, text: str) -> str:
-        """Detect language from user text"""
+        """Detect language from user text."""
         try:
             if not text or len(text.strip()) < 2:
                 return "sw"  # Default to Swahili
@@ -49,285 +53,348 @@ class LanguageDetector:
             swahili_matches = len(self.swahili_regex.findall(text_clean))
             english_matches = len(self.english_regex.findall(text_clean))
 
-            # Special cases for common greetings
-            if any(
-                word in text_clean
-                for word in ["habari", "mambo", "hujambo", "niaje"]
-            ):
-                return "sw"
-            elif any(word in text_clean for word in ["hello", "hi", "hey"]):
-                return "en"
-
-            # Determine language based on match count
+            # Determine language based on matches
             if swahili_matches > english_matches:
                 return "sw"
             elif english_matches > swahili_matches:
                 return "en"
             else:
-                # Default to Swahili if no clear preference
-                return "sw"
+                # If equal or no matches, check for specific indicators
+                if any(word in text_clean for word in ["bitcoin", "btc", "crypto"]):
+                    return "en"  # Default to English for crypto terms
+                return "sw"  # Default to Swahili
 
         except Exception as e:
-            logger.log_error(e, {"operation": "detect_language", "text": text})
-            return "sw"  # Default fallback
+            logger.log_error(e, {"operation": "detect_language"})
+            return "sw"  # Fallback to Swahili
 
 
 class MultiLanguageBot:
-    """Multi-language bot handler with dynamic content switching"""
+    """Multi-language bot with dynamic content switching."""
 
     def __init__(self):
+        """Initialize the multi-language bot."""
         self.language_detector = LanguageDetector()
-        self.user_languages = {}  # Store user language preferences
-        self.supported_languages = ["sw", "en"]
+        self.user_languages = {}  # Cache user language preferences
+        self.content_manager = content_manager
 
-        # Language-specific response templates
-        self.response_templates = {
-            "sw": {
-                "language_set": "Lugha imebadilishwa kuwa Kiswahili! 🇹🇿",
-                "language_detected": "Ninaona unatumia Kiswahili. Nitaendelea kwa Kiswahili!",
-                "welcome": "Habari! Mimi ni BitMshauri, msaidizi wako wa Bitcoin.",
-                "help_command": "/sw - Badili kwenda Kiswahili\n/en - Switch to English\n/detect - Gundua lugha kiotomatiki",
-                "unknown_command": "Samahani, sijui amri hiyo. Andika /help kupata msaada.",
-                "error_occurred": "Samahani, kuna tatizo. Jaribu tena.",
-                "processing": "Nalinganisha...",
-                "done": "Imemaliza!",
-            },
-            "en": {
-                "language_set": "Language changed to English! 🇺🇸",
-                "language_detected": "I see you're using English. I'll continue in English!",
-                "welcome": "Hello! I'm BitMshauri, your Bitcoin assistant.",
-                "help_command": "/sw - Badili kwenda Kiswahili\n/en - Switch to English\n/detect - Auto-detect language",
-                "unknown_command": "Sorry, I don't understand that command. Type /help for assistance.",
-                "error_occurred": "Sorry, there was an error. Please try again.",
-                "processing": "Processing...",
-                "done": "Done!",
-            },
-        }
-
-    def set_user_language(self, user_id: int, language: str) -> bool:
-        """Set language preference for user"""
+    def get_user_language(self, user_id: int, message_text: str = None) -> str:
+        """Get user's preferred language with auto-detection."""
         try:
-            if language in self.supported_languages:
-                self.user_languages[user_id] = language
-                logger.log_user_action(
-                    user_id, "language_set", {"language": language}
-                )
-                return True
-            return False
-        except Exception as e:
-            logger.log_error(e, {"operation": "set_user_language"})
-            return False
-
-    def get_user_language(
-        self, user_id: int, auto_detect_text: str = None
-    ) -> str:
-        """Get user's language preference or detect from text"""
-        try:
-            # Check if user has explicit preference
+            # Check if user has cached language preference
             if user_id in self.user_languages:
                 return self.user_languages[user_id]
 
-            # Auto-detect if text provided
-            if auto_detect_text:
-                detected_lang = self.language_detector.detect_language(
-                    auto_detect_text
+            # Auto-detect from message if provided
+            if message_text:
+                detected_language = self.language_detector.detect_language(
+                    message_text
                 )
-                # Store detected language as preference
-                self.user_languages[user_id] = detected_lang
-                return detected_lang
+                self.user_languages[user_id] = detected_language
+                return detected_language
 
             # Default to Swahili
+            self.user_languages[user_id] = "sw"
             return "sw"
 
         except Exception as e:
             logger.log_error(e, {"operation": "get_user_language"})
             return "sw"
 
-    def get_response(self, user_id: int, template_key: str, **kwargs) -> str:
-        """Get localized response for user"""
+    def set_user_language(self, user_id: int, language: str) -> bool:
+        """Set user's preferred language."""
+        try:
+            if language in ["sw", "en"]:
+                self.user_languages[user_id] = language
+                logger.log_user_action(
+                    user_id, "language_changed", {"language": language}
+                )
+                return True
+            return False
+
+        except Exception as e:
+            logger.log_error(e, {"operation": "set_user_language"})
+            return False
+
+    def get_response(self, user_id: int, response_key: str) -> str:
+        """Get localized response for user."""
         try:
             language = self.get_user_language(user_id)
-            template = self.response_templates.get(language, {}).get(
-                template_key, ""
-            )
+            response = self.content_manager.get_response(language, response_key)
 
-            if kwargs:
-                return template.format(**kwargs)
-            return template
+            if response:
+                return response
+
+            # Fallback to Swahili if not found
+            if language != "sw":
+                response = self.content_manager.get_response("sw", response_key)
+                if response:
+                    return response
+
+            # Final fallback
+            return "Samahani, kuna tatizo kiufundi. Jaribu tena."
 
         except Exception as e:
             logger.log_error(e, {"operation": "get_response"})
-            return (
-                self.response_templates["sw"][template_key]
-                if template_key in self.response_templates["sw"]
-                else ""
-            )
+            return "Samahani, kuna tatizo kiufundi. Jaribu tena."
 
-    def get_content(
-        self,
-        user_id: int,
-        content_type: str,
-        content_key: str = None,
-        auto_detect_text: str = None,
-    ):
-        """Get localized content for user"""
+    def get_lesson(self, user_id: int, lesson_key: str) -> Optional[Dict]:
+        """Get localized lesson for user."""
         try:
-            language = self.get_user_language(user_id, auto_detect_text)
+            language = self.get_user_language(user_id)
+            lesson = self.content_manager.get_lesson(language, lesson_key)
 
-            if content_key:
-                return content_manager.get_content(
-                    content_type, content_key, language
-                )
-            else:
-                return content_manager.get_content(content_type, "", language)
+            if lesson:
+                return lesson
 
-        except Exception as e:
-            logger.log_error(e, {"operation": "get_content"})
+            # Fallback to Swahili if not found
+            if language != "sw":
+                lesson = self.content_manager.get_lesson("sw", lesson_key)
+                if lesson:
+                    return lesson
+
             return None
 
-    def get_lesson(
-        self, user_id: int, lesson_key: str, auto_detect_text: str = None
-    ):
-        """Get localized lesson"""
-        return self.get_content(
-            user_id, "lessons", lesson_key, auto_detect_text
-        )
+        except Exception as e:
+            logger.log_error(e, {"operation": "get_lesson"})
+            return None
 
-    def get_quiz(
-        self, user_id: int, quiz_name: str, auto_detect_text: str = None
-    ):
-        """Get localized quiz"""
-        return self.get_content(
-            user_id, "quizzes", quiz_name, auto_detect_text
-        )
+    def get_menu_keyboard(self, user_id: int) -> List[List[str]]:
+        """Get localized menu keyboard for user."""
+        try:
+            language = self.get_user_language(user_id)
+            menu = self.content_manager.get_menu_keyboard(language)
 
-    def get_menu_keyboard(self, user_id: int, auto_detect_text: str = None):
-        """Get localized menu keyboard"""
-        return self.get_content(
-            user_id, "menu_keyboard", None, auto_detect_text
-        )
+            if menu:
+                return menu
 
-    def get_secondary_menu_keyboard(
-        self, user_id: int, auto_detect_text: str = None
-    ):
-        """Get localized secondary menu keyboard"""
-        return self.get_content(
-            user_id, "secondary_menu_keyboard", None, auto_detect_text
-        )
+            # Fallback to Swahili if not found
+            if language != "sw":
+                menu = self.content_manager.get_menu_keyboard("sw")
+                if menu:
+                    return menu
 
-    def get_daily_tips(self, user_id: int, auto_detect_text: str = None):
-        """Get localized daily tips"""
-        return self.get_content(user_id, "daily_tips", None, auto_detect_text)
+            # Final fallback
+            return [
+                ["🌍 Kwa Nini Bitcoin?", "📚 Bitcoin ni nini?"],
+                ["💰 Bei ya Bitcoin", "📝 Jaribio la Bitcoin"],
+                ["ℹ️ Msaada Zaidi"],
+            ]
+
+        except Exception as e:
+            logger.log_error(e, {"operation": "get_menu_keyboard"})
+            return []
 
     def format_price_message(self, user_id: int, price_data: Dict) -> str:
-        """Format price message in user's language"""
+        """Format price message in user's language."""
         try:
             language = self.get_user_language(user_id)
 
             if language == "sw":
                 return (
-                    f"💰 *Bei ya Bitcoin Sasa:*\n"
-                    f"💵 ${price_data.get('usd', 'N/A'):,.2f}\n"
-                    f"🏛️ TSh {price_data.get('tzs', 'N/A'):,.0f}\n"
-                    f"📊 Mabadiliko ya siku 24: {price_data.get('usd_24h_change', 0):.2f}%\n"
-                    f"🕐 Imesasishwa: {price_data.get('last_updated', 'N/A')}"
+                    f"💰 **Bei ya Bitcoin**\n\n"
+                    f"🇺🇸 USD: ${price_data.get('usd', 0):,.2f}\n"
+                    f"🇰🇪 KES: KSh {price_data.get('kes', 0):,.2f}\n\n"
+                    f"📈 Mabadiliko (24h): {price_data.get('price_change_24h', 0):+.2f}%\n"
+                    f"📊 Soko: ${price_data.get('market_cap', 0):,.0f}\n\n"
+                    f"⏰ Muda: {price_data.get('timestamp', 'N/A')}"
                 )
-            else:
+            else:  # English
                 return (
-                    f"💰 *Current Bitcoin Price:*\n"
-                    f"💵 ${price_data.get('usd', 'N/A'):,.2f}\n"
-                    f"🏛️ TSh {price_data.get('tzs', 'N/A'):,.0f}\n"
-                    f"📊 24h Change: {price_data.get('usd_24h_change', 0):.2f}%\n"
-                    f"🕐 Last Updated: {price_data.get('last_updated', 'N/A')}"
+                    f"💰 **Bitcoin Price**\n\n"
+                    f"🇺🇸 USD: ${price_data.get('usd', 0):,.2f}\n"
+                    f"🇰🇪 KES: KSh {price_data.get('kes', 0):,.2f}\n\n"
+                    f"📈 Change (24h): {price_data.get('price_change_24h', 0):+.2f}%\n"
+                    f"📊 Market Cap: ${price_data.get('market_cap', 0):,.0f}\n\n"
+                    f"⏰ Time: {price_data.get('timestamp', 'N/A')}"
                 )
 
         except Exception as e:
             logger.log_error(e, {"operation": "format_price_message"})
-            return "Bei ya Bitcoin haipatikani kwa sasa."
+            return "Samahani, bei haipatikani kwa sasa."
 
     def format_calculation_result(
-        self, user_id: int, calculation_result: Dict
+        self, user_id: int, result: Dict
     ) -> str:
-        """Format calculation result in user's language"""
+        """Format calculation result in user's language."""
         try:
             language = self.get_user_language(user_id)
 
             if language == "sw":
                 return (
-                    f"🧮 *Mahesabu ya Bitcoin:*\n"
-                    f"📊 {calculation_result.get('original_amount', 0):,.2f} "
-                    f"{calculation_result.get('from_currency', '').upper()} = "
-                    f"{calculation_result.get('converted_amount', 0):,.8f} "
-                    f"{calculation_result.get('to_currency', '').upper()}\n"
-                    f"💰 Bei ya sasa: ${calculation_result.get('current_price', 0):,.2f}\n"
-                    f"🕐 {calculation_result.get('timestamp', '')}"
+                    f"💰 **Hesabu ya Bitcoin**\n\n"
+                    f"{result.get('formatted', '')}\n\n"
+                    f"📊 Bei ya Bitcoin: ${result.get('btc_price_usd', 0):,.2f}\n"
+                    f"📈 Mabadiliko (24h): {result.get('price_change_24h', 0):+.2f}%\n"
+                    f"💡 *Kidokezo: Bei ya Bitcoin inabadilika kila wakati*"
                 )
-            else:
+            else:  # English
                 return (
-                    f"🧮 *Bitcoin Calculation:*\n"
-                    f"📊 {calculation_result.get('original_amount', 0):,.2f} "
-                    f"{calculation_result.get('from_currency', '').upper()} = "
-                    f"{calculation_result.get('converted_amount', 0):,.8f} "
-                    f"{calculation_result.get('to_currency', '').upper()}\n"
-                    f"💰 Current price: ${calculation_result.get('current_price', 0):,.2f}\n"
-                    f"🕐 {calculation_result.get('timestamp', '')}"
+                    f"💰 **Bitcoin Calculation**\n\n"
+                    f"{result.get('formatted', '')}\n\n"
+                    f"📊 Bitcoin Price: ${result.get('btc_price_usd', 0):,.2f}\n"
+                    f"📈 Change (24h): {result.get('price_change_24h', 0):+.2f}%\n"
+                    f"💡 *Tip: Bitcoin price changes constantly*"
                 )
 
         except Exception as e:
             logger.log_error(e, {"operation": "format_calculation_result"})
-            return "Mahesabu hayawezi kukamilika."
+            return "Samahani, sijaweza kufanya hesabu hiyo."
 
-    def get_language_stats(self) -> Dict:
-        """Get language usage statistics"""
+    def get_quiz(self, user_id: int, quiz_name: str) -> List[Dict]:
+        """Get localized quiz for user."""
         try:
-            stats = {
-                "total_users": len(self.user_languages),
-                "language_distribution": {},
-                "supported_languages": self.supported_languages,
-            }
+            language = self.get_user_language(user_id)
 
-            for language in self.supported_languages:
-                count = sum(
-                    1
-                    for lang in self.user_languages.values()
-                    if lang == language
+            # Sample quiz questions (in real implementation, load from content manager)
+            if language == "sw":
+                return [
+                    {
+                        "question": "Bitcoin ni nini?",
+                        "options": [
+                            "Pesa ya kidijitali",
+                            "Benki ya kimataifa",
+                            "Kampuni ya teknolojia",
+                            "Mfumo wa malipo ya benki",
+                        ],
+                        "answer": 0,
+                        "explanation": "Bitcoin ni pesa ya kidijitali ambayo inatumia teknolojia ya blockchain.",
+                    },
+                    {
+                        "question": "Blockchain ni nini?",
+                        "options": [
+                            "Aina ya benki",
+                            "Teknolojia ya kuhifadhi taarifa",
+                            "Mfumo wa malipo",
+                            "Kampuni ya teknolojia",
+                        ],
+                        "answer": 1,
+                        "explanation": "Blockchain ni teknolojia ya kuhifadhi taarifa kwa njia ya usalama na uwazi.",
+                    },
+                ]
+            else:  # English
+                return [
+                    {
+                        "question": "What is Bitcoin?",
+                        "options": [
+                            "Digital currency",
+                            "International bank",
+                            "Technology company",
+                            "Bank payment system",
+                        ],
+                        "answer": 0,
+                        "explanation": "Bitcoin is a digital currency that uses blockchain technology.",
+                    },
+                    {
+                        "question": "What is blockchain?",
+                        "options": [
+                            "Type of bank",
+                            "Data storage technology",
+                            "Payment system",
+                            "Technology company",
+                        ],
+                        "answer": 1,
+                        "explanation": "Blockchain is a secure and transparent data storage technology.",
+                    },
+                ]
+
+        except Exception as e:
+            logger.log_error(e, {"operation": "get_quiz"})
+            return []
+
+    def get_daily_tips(self, user_id: int) -> List[str]:
+        """Get localized daily tips for user."""
+        try:
+            language = self.get_user_language(user_id)
+
+            if language == "sw":
+                return [
+                    "💡 Bitcoin ni hifadhi ya thamani ya muda mrefu.",
+                    "💡 Usiweke pesa zote katika Bitcoin - tofautisha uwekezaji wako.",
+                    "💡 Jifunze kuhusu usalama wa pochi kabla ya kununua Bitcoin.",
+                    "💡 Bei ya Bitcoin inabadilika kila wakati - usiogope mabadiliko.",
+                    "💡 Bitcoin ni teknolojia ya usoni - jifunze zaidi kuhusu blockchain.",
+                ]
+            else:  # English
+                return [
+                    "💡 Bitcoin is a long-term store of value.",
+                    "💡 Don't put all your money in Bitcoin - diversify your investments.",
+                    "💡 Learn about wallet security before buying Bitcoin.",
+                    "💡 Bitcoin price changes constantly - don't fear the volatility.",
+                    "💡 Bitcoin is future technology - learn more about blockchain.",
+                ]
+
+        except Exception as e:
+            logger.log_error(e, {"operation": "get_daily_tips"})
+            return []
+
+    def get_language_switcher_message(self, user_id: int) -> str:
+        """Get language switcher message."""
+        try:
+            current_language = self.get_user_language(user_id)
+
+            if current_language == "sw":
+                return (
+                    "🌍 **Badilisha Lugha**\n\n"
+                    "Lugha yako ya sasa: Kiswahili\n\n"
+                    "Chagua lugha unayotaka kutumia:\n"
+                    "• 🇹🇿 Kiswahili (sasa)\n"
+                    "• 🇺🇸 English\n\n"
+                    "Andika 'English' au 'Kiswahili' kubadilisha lugha."
                 )
-                stats["language_distribution"][language] = count
+            else:
+                return (
+                    "🌍 **Change Language**\n\n"
+                    "Your current language: English\n\n"
+                    "Choose the language you want to use:\n"
+                    "• 🇹🇿 Kiswahili\n"
+                    "• 🇺🇸 English (current)\n\n"
+                    "Type 'English' or 'Kiswahili' to change language."
+                )
+
+        except Exception as e:
+            logger.log_error(e, {"operation": "get_language_switcher_message"})
+            return "Samahani, kuna tatizo kiufundi. Jaribu tena."
+
+    def handle_language_switch(self, user_id: int, text: str) -> Tuple[bool, str]:
+        """Handle language switching request."""
+        try:
+            text_lower = text.lower().strip()
+
+            if text_lower in ["english", "en", "inglés"]:
+                if self.set_user_language(user_id, "en"):
+                    return True, "Language changed to English! 🇺🇸"
+                else:
+                    return False, "Failed to change language."
+
+            elif text_lower in ["kiswahili", "swahili", "sw", "kiswahili"]:
+                if self.set_user_language(user_id, "sw"):
+                    return True, "Lugha imebadilishwa kuwa Kiswahili! 🇹🇿"
+                else:
+                    return False, "Imeshindwa kubadilisha lugha."
+
+            return False, "Invalid language option."
+
+        except Exception as e:
+            logger.log_error(e, {"operation": "handle_language_switch"})
+            return False, "Samahani, kuna tatizo kiufundi. Jaribu tena."
+
+    def get_user_stats(self) -> Dict[str, int]:
+        """Get user language statistics."""
+        try:
+            stats = {"sw": 0, "en": 0, "total": 0}
+
+            for language in self.user_languages.values():
+                if language in stats:
+                    stats[language] += 1
+                stats["total"] += 1
 
             return stats
 
         except Exception as e:
-            logger.log_error(e, {"operation": "get_language_stats"})
-            return {}
+            logger.log_error(e, {"operation": "get_user_stats"})
+            return {"sw": 0, "en": 0, "total": 0}
 
 
 # Global multi-language bot instance
 multi_lang_bot = MultiLanguageBot()
-
-
-# Helper functions for easy integration
-def get_user_language(user_id: int, auto_detect_text: str = None) -> str:
-    """Get user's language preference"""
-    return multi_lang_bot.get_user_language(user_id, auto_detect_text)
-
-
-def set_user_language(user_id: int, language: str) -> bool:
-    """Set user's language preference"""
-    return multi_lang_bot.set_user_language(user_id, language)
-
-
-def get_localized_response(user_id: int, template_key: str, **kwargs) -> str:
-    """Get localized response"""
-    return multi_lang_bot.get_response(user_id, template_key, **kwargs)
-
-
-def get_localized_content(
-    user_id: int,
-    content_type: str,
-    content_key: str = None,
-    auto_detect_text: str = None,
-):
-    """Get localized content"""
-    return multi_lang_bot.get_content(
-        user_id, content_type, content_key, auto_detect_text
-    )

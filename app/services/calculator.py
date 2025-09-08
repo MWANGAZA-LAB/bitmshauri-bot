@@ -1,20 +1,24 @@
+"""Advanced Bitcoin calculator with multiple conversion options."""
+
 import re
-from typing import Optional, Dict, Tuple
+from typing import Dict, Optional
+
 from app.services.price_service import price_monitor
 from app.utils.logger import logger
 
 
 class BitcoinCalculator:
-    """Advanced Bitcoin calculator with multiple conversion options"""
+    """Advanced Bitcoin calculator with multiple conversion options."""
 
     def __init__(self):
+        """Initialize the Bitcoin calculator."""
         self.supported_currencies = {
             "USD": {"symbol": "$", "name": "US Dollar"},
             "KES": {"symbol": "KSh", "name": "Kenyan Shilling"},
         }
 
     async def parse_calculation_request(self, text: str) -> Optional[Dict]:
-        """Parse user input for calculation requests"""
+        """Parse user input for calculation requests."""
         try:
             text = text.lower().strip()
 
@@ -61,220 +65,217 @@ class BitcoinCalculator:
                             "amount": float(match.group(1)),
                             "to_currency": "USD",
                         }
-                    elif i == 4:  # Bitcoin price in KES
-                        return {"type": "price_check", "currency": "KES"}
-                    elif i == 5:  # Bitcoin price in USD
-                        return {"type": "price_check", "currency": "USD"}
+                    elif i == 4:  # BTC price in KES
+                        return {
+                            "type": "price_in_currency",
+                            "currency": "KES",
+                        }
+                    elif i == 5:  # BTC price in USD
+                        return {
+                            "type": "price_in_currency",
+                            "currency": "USD",
+                        }
 
             return None
 
         except Exception as e:
-            logger.log_error(
-                e, {"operation": "parse_calculation_request", "text": text}
-            )
+            logger.log_error(e, {"operation": "parse_calculation_request"})
             return None
 
-    async def calculate_fiat_to_btc(
-        self, amount: float, currency: str
-    ) -> Optional[Dict]:
-        """Convert fiat currency to Bitcoin"""
+    async def calculate(self, text: str) -> Optional[Dict]:
+        """Perform Bitcoin calculation based on user input."""
         try:
-            current_prices = await price_monitor.get_current_price()
-            if not current_prices or currency not in current_prices:
+            # Parse the calculation request
+            calc_request = await self.parse_calculation_request(text)
+            if not calc_request:
                 return None
 
-            btc_price = current_prices[currency]
-            btc_amount = amount / btc_price
-
-            # Calculate additional info
-            satoshis = btc_amount * 100_000_000  # 1 BTC = 100M satoshis
-
-            return {
-                "fiat_amount": amount,
-                "fiat_currency": currency,
-                "btc_amount": btc_amount,
-                "satoshis": int(satoshis),
-                "btc_price": btc_price,
-                "calculation_type": "fiat_to_btc",
-            }
-
-        except Exception as e:
-            logger.log_error(
-                e,
-                {
-                    "operation": "calculate_fiat_to_btc",
-                    "amount": amount,
-                    "currency": currency,
-                },
-            )
-            return None
-
-    async def calculate_btc_to_fiat(
-        self, btc_amount: float, currency: str
-    ) -> Optional[Dict]:
-        """Convert Bitcoin to fiat currency"""
-        try:
-            current_prices = await price_monitor.get_current_price()
-            if not current_prices or currency not in current_prices:
+            # Get current Bitcoin price
+            price_data = await price_monitor.get_current_price()
+            if not price_data:
                 return None
 
-            btc_price = current_prices[currency]
-            fiat_amount = btc_amount * btc_price
+            btc_price_usd = price_data.get("usd", 0)
+            btc_price_kes = price_data.get("kes", 0)
 
-            # Calculate additional info
-            satoshis = btc_amount * 100_000_000
+            if calc_request["type"] == "fiat_to_btc":
+                amount = calc_request["amount"]
+                from_currency = calc_request["from_currency"]
 
-            return {
-                "btc_amount": btc_amount,
-                "fiat_amount": fiat_amount,
-                "fiat_currency": currency,
-                "satoshis": int(satoshis),
-                "btc_price": btc_price,
-                "calculation_type": "btc_to_fiat",
-            }
+                if from_currency == "USD":
+                    btc_amount = amount / btc_price_usd
+                    result = {
+                        "type": "fiat_to_btc",
+                        "input_amount": amount,
+                        "input_currency": "USD",
+                        "btc_amount": btc_amount,
+                        "btc_price_usd": btc_price_usd,
+                        "formatted": f"${amount:,.2f} = {btc_amount:.8f} BTC",
+                    }
+                elif from_currency == "KES":
+                    btc_amount = amount / btc_price_kes
+                    result = {
+                        "type": "fiat_to_btc",
+                        "input_amount": amount,
+                        "input_currency": "KES",
+                        "btc_amount": btc_amount,
+                        "btc_price_kes": btc_price_kes,
+                        "formatted": f"KSh {amount:,.2f} = {btc_amount:.8f} BTC",
+                    }
+
+            elif calc_request["type"] == "btc_to_fiat":
+                btc_amount = calc_request["amount"]
+                to_currency = calc_request["to_currency"]
+
+                if to_currency == "USD":
+                    fiat_amount = btc_amount * btc_price_usd
+                    result = {
+                        "type": "btc_to_fiat",
+                        "btc_amount": btc_amount,
+                        "output_amount": fiat_amount,
+                        "output_currency": "USD",
+                        "btc_price_usd": btc_price_usd,
+                        "formatted": f"{btc_amount:.8f} BTC = ${fiat_amount:,.2f}",
+                    }
+                elif to_currency == "KES":
+                    fiat_amount = btc_amount * btc_price_kes
+                    result = {
+                        "type": "btc_to_fiat",
+                        "btc_amount": btc_amount,
+                        "output_amount": fiat_amount,
+                        "output_currency": "KES",
+                        "btc_price_kes": btc_price_kes,
+                        "formatted": f"{btc_amount:.8f} BTC = KSh {fiat_amount:,.2f}",
+                    }
+
+            elif calc_request["type"] == "price_in_currency":
+                currency = calc_request["currency"]
+                if currency == "USD":
+                    result = {
+                        "type": "price_in_currency",
+                        "currency": "USD",
+                        "price": btc_price_usd,
+                        "formatted": f"Bitcoin Price: ${btc_price_usd:,.2f}",
+                    }
+                elif currency == "KES":
+                    result = {
+                        "type": "price_in_currency",
+                        "currency": "KES",
+                        "price": btc_price_kes,
+                        "formatted": f"Bitcoin Price: KSh {btc_price_kes:,.2f}",
+                    }
+
+            # Add additional information
+            result["timestamp"] = price_data.get("timestamp")
+            result["price_change_24h"] = price_data.get("price_change_24h", 0)
+            result["market_cap"] = price_data.get("market_cap", 0)
+
+            return result
 
         except Exception as e:
-            logger.log_error(
-                e,
-                {
-                    "operation": "calculate_btc_to_fiat",
-                    "btc_amount": btc_amount,
-                    "currency": currency,
-                },
-            )
+            logger.log_error(e, {"operation": "calculate"})
             return None
 
-    def format_calculation_result(self, result: Dict) -> str:
-        """Format calculation result into user-friendly message"""
+    def format_calculation_result(self, result: Dict, language: str = "sw") -> str:
+        """Format calculation result for display."""
         try:
             if not result:
-                return "Samahani, haikuweza kuhesabu. Tafadhali jaribu tena."
+                return "Samahani, sijaweza kufanya hesabu hiyo."
 
-            currency_info = self.supported_currencies.get(
-                result.get("fiat_currency", "USD")
-            )
-            symbol = currency_info["symbol"] if currency_info else ""
+            calc_type = result.get("type")
+            formatted = result.get("formatted", "")
 
-            if result["calculation_type"] == "fiat_to_btc":
-                message = (
-                    f"🧮 *Hesabu ya Bitcoin:*\n\n"
-                    f"💰 *Kiasi:* {symbol}{result['fiat_amount']:,.2f} {result['fiat_currency']}\n"
-                    f"₿ *Bitcoin:* {result['btc_amount']:.8f} BTC\n"
-                    f"⚡ *Satoshi:* {result['satoshis']:,} sats\n\n"
-                    f"📊 *Bei ya Bitcoin:* {symbol}{result['btc_price']:,.0f}\n"
-                    f"🕒 *Hesabu ya sasa*"
-                )
+            if language == "sw":
+                if calc_type == "fiat_to_btc":
+                    return (
+                        f"💰 **Hesabu ya Bitcoin**\n\n"
+                        f"{formatted}\n\n"
+                        f"📊 Bei ya Bitcoin: ${result.get('btc_price_usd', 0):,.2f}\n"
+                        f"📈 Mabadiliko (24h): {result.get('price_change_24h', 0):+.2f}%\n"
+                        f"💡 *Kidokezo: Bei ya Bitcoin inabadilika kila wakati*"
+                    )
+                elif calc_type == "btc_to_fiat":
+                    return (
+                        f"💰 **Hesabu ya Bitcoin**\n\n"
+                        f"{formatted}\n\n"
+                        f"📊 Bei ya Bitcoin: ${result.get('btc_price_usd', 0):,.2f}\n"
+                        f"📈 Mabadiliko (24h): {result.get('price_change_24h', 0):+.2f}%\n"
+                        f"💡 *Kidokezo: Bei ya Bitcoin inabadilika kila wakati*"
+                    )
+                elif calc_type == "price_in_currency":
+                    return (
+                        f"💰 **Bei ya Bitcoin**\n\n"
+                        f"{formatted}\n\n"
+                        f"📈 Mabadiliko (24h): {result.get('price_change_24h', 0):+.2f}%\n"
+                        f"💡 *Kidokezo: Bei ya Bitcoin inabadilika kila wakati*"
+                    )
+            else:  # English
+                if calc_type == "fiat_to_btc":
+                    return (
+                        f"💰 **Bitcoin Calculation**\n\n"
+                        f"{formatted}\n\n"
+                        f"📊 Bitcoin Price: ${result.get('btc_price_usd', 0):,.2f}\n"
+                        f"📈 Change (24h): {result.get('price_change_24h', 0):+.2f}%\n"
+                        f"💡 *Tip: Bitcoin price changes constantly*"
+                    )
+                elif calc_type == "btc_to_fiat":
+                    return (
+                        f"💰 **Bitcoin Calculation**\n\n"
+                        f"{formatted}\n\n"
+                        f"📊 Bitcoin Price: ${result.get('btc_price_usd', 0):,.2f}\n"
+                        f"📈 Change (24h): {result.get('price_change_24h', 0):+.2f}%\n"
+                        f"💡 *Tip: Bitcoin price changes constantly*"
+                    )
+                elif calc_type == "price_in_currency":
+                    return (
+                        f"💰 **Bitcoin Price**\n\n"
+                        f"{formatted}\n\n"
+                        f"📈 Change (24h): {result.get('price_change_24h', 0):+.2f}%\n"
+                        f"💡 *Tip: Bitcoin price changes constantly*"
+                    )
 
-            elif result["calculation_type"] == "btc_to_fiat":
-                message = (
-                    f"🧮 *Hesabu ya Bitcoin:*\n\n"
-                    f"₿ *Bitcoin:* {result['btc_amount']:.8f} BTC\n"
-                    f"💰 *Thamani:* {symbol}{result['fiat_amount']:,.2f} {result['fiat_currency']}\n"
-                    f"⚡ *Satoshi:* {result['satoshis']:,} sats\n\n"
-                    f"📊 *Bei ya Bitcoin:* {symbol}{result['btc_price']:,.0f}\n"
-                    f"🕒 *Hesabu ya sasa*"
-                )
-
-            else:
-                message = "Samahani, aina ya hesabu haijulikani."
-
-            # Add helpful tip
-            message += (
-                f"\n\n💡 *Vidokezo vya Hesabu:*\n"
-                f"• Andika: '1000 kes to btc'\n"
-                f"• Au: '0.001 btc to kes'\n"
-                f"• Au: 'bitcoin price in usd'"
-            )
-
-            return message
+            return formatted
 
         except Exception as e:
             logger.log_error(e, {"operation": "format_calculation_result"})
-            return "Kuna tatizo la kuonyesha matokeo. Tafadhali jaribu tena."
+            return "Samahani, kuna tatizo kiufundi. Jaribu tena."
 
-    async def get_price_comparison(self) -> str:
-        """Get Bitcoin price comparison across currencies"""
+    def get_supported_currencies(self) -> Dict:
+        """Get list of supported currencies."""
+        return self.supported_currencies
+
+    def validate_amount(self, amount: float) -> bool:
+        """Validate calculation amount."""
         try:
-            current_prices = await price_monitor.get_current_price()
-            if not current_prices:
-                return "Samahani, bei haipatikani kwa sasa."
+            return 0 < amount <= 1e12  # Reasonable range
+        except (ValueError, TypeError):
+            return False
 
-            message = (
-                f"💱 *Ulinganishi wa Bei ya Bitcoin:*\n\n"
-                f"🇺🇸 *USD:* ${current_prices.get('USD', 0):,.0f}\n"
-                f"🇰🇪 *KES:* KSh {current_prices.get('KES', 0):,.0f}\n\n"
-                f"📊 *Kipimo cha Satoshi:*\n"
-                f"• 1 sat = ${current_prices.get('USD', 0) / 100_000_000:.6f}\n"
-                f"• 1 sat = KSh {current_prices.get('KES', 0) / 100_000_000:.4f}\n\n"
-                f"🧮 *Hesabu Rahisi:*\n"
-                f"• $1 = {1 / current_prices.get('USD', 1) * 100_000_000:.0f} sats\n"
-                f"• KSh 100 = {100 / current_prices.get('KES', 1) * 100_000_000:.0f} sats"
+    def get_calculation_examples(self, language: str = "sw") -> str:
+        """Get calculation examples for user guidance."""
+        if language == "sw":
+            return (
+                "📝 **Mifano ya Hesabu:**\n\n"
+                "• `1000 kes to btc` - Badilisha shilingi 1000 kuwa Bitcoin\n"
+                "• `500 usd to btc` - Badilisha dola 500 kuwa Bitcoin\n"
+                "• `0.001 btc to kes` - Badilisha Bitcoin 0.001 kuwa shilingi\n"
+                "• `0.001 btc to usd` - Badilisha Bitcoin 0.001 kuwa dola\n"
+                "• `bitcoin price in kes` - Onyesha bei ya Bitcoin kwa shilingi\n"
+                "• `btc price in usd` - Onyesha bei ya Bitcoin kwa dola\n\n"
+                "💡 *Andika hesabu yako kwa lugha rahisi!*"
             )
-
-            return message
-
-        except Exception as e:
-            logger.log_error(e, {"operation": "get_price_comparison"})
-            return "Kuna tatizo la kupata ulinganishi wa bei."
+        else:
+            return (
+                "📝 **Calculation Examples:**\n\n"
+                "• `1000 kes to btc` - Convert 1000 shillings to Bitcoin\n"
+                "• `500 usd to btc` - Convert 500 dollars to Bitcoin\n"
+                "• `0.001 btc to kes` - Convert 0.001 Bitcoin to shillings\n"
+                "• `0.001 btc to usd` - Convert 0.001 Bitcoin to dollars\n"
+                "• `bitcoin price in kes` - Show Bitcoin price in shillings\n"
+                "• `btc price in usd` - Show Bitcoin price in dollars\n\n"
+                "💡 *Write your calculation in simple language!*"
+            )
 
 
 # Global calculator instance
 bitcoin_calculator = BitcoinCalculator()
-
-
-async def process_calculation_request(text: str, user_id: int) -> str:
-    """Process user calculation request"""
-    try:
-        # Log the calculation request
-        logger.log_user_action(user_id, "calculator_request", {"query": text})
-
-        # Parse the request
-        calculation_request = (
-            await bitcoin_calculator.parse_calculation_request(text)
-        )
-
-        if not calculation_request:
-            return (
-                "🧮 *Hoja ya Hesabu*\n\n"
-                "Andika moja ya hizi:\n"
-                "• '1000 kes to btc' - Badilisha KES kuwa Bitcoin\n"
-                "• '0.001 btc to kes' - Badilisha Bitcoin kuwa KES\n"
-                "• '500 usd to btc' - Badilisha USD kuwa Bitcoin\n"
-                "• '0.002 btc to usd' - Badilisha Bitcoin kuwa USD\n"
-                "• 'bitcoin price' - Bei ya Bitcoin\n\n"
-                "Pia unaweza kutumia: /calculate au /calc"
-            )
-
-        # Handle different calculation types
-        if calculation_request["type"] == "fiat_to_btc":
-            result = await bitcoin_calculator.calculate_fiat_to_btc(
-                calculation_request["amount"],
-                calculation_request["from_currency"],
-            )
-        elif calculation_request["type"] == "btc_to_fiat":
-            result = await bitcoin_calculator.calculate_btc_to_fiat(
-                calculation_request["amount"],
-                calculation_request["to_currency"],
-            )
-        elif calculation_request["type"] == "price_check":
-            return await bitcoin_calculator.get_price_comparison()
-        else:
-            return "Aina ya hesabu haijulikani."
-
-        # Format and return result
-        formatted_result = bitcoin_calculator.format_calculation_result(result)
-
-        # Log successful calculation
-        logger.log_user_action(
-            user_id,
-            "calculator_success",
-            {"request_type": calculation_request["type"], "result": result},
-        )
-
-        return formatted_result
-
-    except Exception as e:
-        logger.log_error(
-            e, {"operation": "process_calculation_request", "user_id": user_id}
-        )
-        return "Samahani, kuna tatizo la kuhesabu. Tafadhali jaribu tena."
