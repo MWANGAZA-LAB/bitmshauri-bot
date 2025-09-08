@@ -13,11 +13,11 @@ from config import Config
 
 class BotManager:
     """Bot manager with graceful shutdown handling."""
-    
+
     def __init__(self):
         self.bot = None
         self.running = False
-    
+
     async def start(self):
         """Start the bot."""
         try:
@@ -27,11 +27,11 @@ class BotManager:
             # Create bot instance
             self.bot = CleanBitMshauriBot()
             self.running = True
-            
+
             # Setup signal handlers for graceful shutdown
             signal.signal(signal.SIGINT, self._signal_handler)
             signal.signal(signal.SIGTERM, self._signal_handler)
-            
+
             print("✅ Bot initialized successfully!")
             print(f"🤖 Bot Token: {Config.TELEGRAM_BOT_TOKEN[:10]}...")
             print(f"📊 Log Level: {Config.LOG_LEVEL}")
@@ -39,10 +39,10 @@ class BotManager:
             print("\n🎯 Bot is now running...")
             print("Press Ctrl+C to stop the bot gracefully.")
             print("=" * 50)
-            
+
             # Start the bot
             await self.bot.run()
-            
+
         except KeyboardInterrupt:
             print("\n⏹️ Received shutdown signal...")
             await self.shutdown()
@@ -55,7 +55,7 @@ class BotManager:
         """Handle shutdown signals."""
         print(f"\n⏹️ Received signal {signum}, shutting down...")
         self.running = False
-    
+
     async def shutdown(self):
         """Gracefully shutdown the bot."""
         try:

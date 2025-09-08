@@ -12,6 +12,7 @@ __pycache__/
 .env.local
 .env.production
 bot_config.py
+deployment_config.py
 
 # Database
 bitmshauri.db
