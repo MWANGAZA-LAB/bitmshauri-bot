@@ -1,6 +1,8 @@
 # BitMshauri Bot
 
-BitMshauri is a Telegram bot designed to educate, empower, and assist users in East Africa with Bitcoin knowledge and transactions, all in Swahili. The bot provides lessons, quizzes, daily tips, and interactive features for buying, spending, and saving Bitcoin.
+> **🌐 [Visit the Website](https://mwangaza-lab.github.io/bitmshauri-bot/) | 🤖 [Try the Bot](https://t.me/BitMshauriBot)**
+
+BitMshauri is a comprehensive Telegram bot designed to educate, empower, and assist users in East Africa with Bitcoin knowledge and transactions. The bot provides interactive lessons, quizzes, real-time price monitoring, and community features in both Swahili and English.
 
 ---
 
