@@ -15,7 +15,9 @@ class Config:
     )
 
     # Security
-    SECRET_KEY = os.getenv("SECRET_KEY", "bitmshauri_bot_secret_key_2024")
+    SECRET_KEY = os.getenv("SECRET_KEY")
+    if not SECRET_KEY:
+        raise ValueError("SECRET_KEY environment variable is required")
 
     # Optional Settings
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

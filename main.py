@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """BitMshauri Bot - Main Entry Point"""
 
-from app.enhanced_telegram_bot import EnhancedBitMshauriBot
+from app.clean_telegram_bot import CleanBitMshauriBot
+import asyncio
 
 if __name__ == "__main__":
-    bot = EnhancedBitMshauriBot()
-    bot.run()
+    bot = CleanBitMshauriBot()
+    asyncio.run(bot.run())
