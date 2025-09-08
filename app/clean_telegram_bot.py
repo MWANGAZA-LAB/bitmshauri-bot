@@ -24,7 +24,7 @@ from telegram.ext import (
 )
 
 # Enhanced imports with proper error handling
-from app.utils.database_manager import async_db_manager
+from app.utils.simple_database_manager import async_db_manager
 from app.utils.logger import logger
 from app.utils.input_validator import InputValidator
 from app.utils.performance_monitor import (

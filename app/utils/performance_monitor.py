@@ -4,12 +4,19 @@ Performance monitoring and optimization utilities
 
 import time
 import asyncio
-import psutil
 import functools
 from typing import Dict, List, Optional, Any, Callable
 from datetime import datetime, timedelta
 from collections import defaultdict, deque
 from app.utils.logger import logger
+
+# Try to import psutil, fallback if not available
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
+    logger.logger.warning("psutil not available, performance monitoring limited")
 
 
 class PerformanceMonitor:
@@ -111,24 +118,42 @@ class PerformanceMonitor:
     
     def get_system_stats(self) -> Dict:
         """Get current system statistics"""
-        process = psutil.Process()
-        memory_info = process.memory_info()
-        
-        return {
-            'uptime': time.time() - self.start_time,
-            'memory': {
-                'rss': memory_info.rss,
-                'vms': memory_info.vms,
-                'percent': process.memory_percent()
-            },
-            'cpu': {
-                'percent': psutil.cpu_percent(),
-                'count': psutil.cpu_count()
-            },
-            'disk': {
-                'usage': psutil.disk_usage('/').percent
+        if PSUTIL_AVAILABLE:
+            process = psutil.Process()
+            memory_info = process.memory_info()
+            
+            return {
+                'uptime': time.time() - self.start_time,
+                'memory': {
+                    'rss': memory_info.rss,
+                    'vms': memory_info.vms,
+                    'percent': process.memory_percent()
+                },
+                'cpu': {
+                    'percent': psutil.cpu_percent(),
+                    'count': psutil.cpu_count()
+                },
+                'disk': {
+                    'usage': psutil.disk_usage('/').percent
+                }
             }
-        }
+        else:
+            return {
+                'uptime': time.time() - self.start_time,
+                'memory': {
+                    'rss': 0,
+                    'vms': 0,
+                    'percent': 0
+                },
+                'cpu': {
+                    'percent': 0,
+                    'count': 1
+                },
+                'disk': {
+                    'usage': 0
+                },
+                'note': 'psutil not available'
+            }
     
     def cleanup_old_metrics(self, max_age: timedelta = timedelta(days=7)):
         """Clean up old metrics to prevent memory leaks"""

@@ -4,12 +4,19 @@ Enhanced database manager with connection pooling and async support
 
 import asyncio
 import sqlite3
-import aiosqlite
 from contextlib import asynccontextmanager, contextmanager
 from typing import Dict, List, Optional, Any, Union
 from datetime import datetime
 import json
 from app.utils.logger import logger
+
+# Try to import aiosqlite, fallback to regular sqlite3 if not available
+try:
+    import aiosqlite
+    ASYNC_SQLITE_AVAILABLE = True
+except ImportError:
+    ASYNC_SQLITE_AVAILABLE = False
+    logger.logger.warning("aiosqlite not available, falling back to regular sqlite3")
 
 
 class DatabaseConnectionPool:
@@ -22,7 +29,7 @@ class DatabaseConnectionPool:
         self._created_connections = 0
         self._lock = asyncio.Lock()
     
-    async def get_connection(self) -> aiosqlite.Connection:
+    async def get_connection(self):
         """Get a database connection from the pool"""
         try:
             # Try to get existing connection
