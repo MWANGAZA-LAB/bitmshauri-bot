@@ -15,6 +15,10 @@ from telegram.ext import (
 )
 from telegram.error import Conflict, NetworkError, TimedOut
 
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+
 # Try to import text-to-speech libraries
 try:
     from gtts import gTTS
@@ -35,7 +39,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Bot configuration
-BOT_TOKEN = "8057866774:AAEMaLJKIyVVqyKn6hEt7tqVt3EzHXzUWno"
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+
+if not BOT_TOKEN:
+    raise ValueError("TELEGRAM_BOT_TOKEN is required. Please set it in .env file")
 
 # User language preferences (in-memory storage)
 user_languages = {}
