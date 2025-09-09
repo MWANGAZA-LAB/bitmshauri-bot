@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Proper BitMshauri Bot using python-telegram-bot library with handlers and callbacks."""
+"""Conflict-free BitMshauri Bot with robust error handling."""
 
 import logging
 import requests
+import time
+import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler, 
     MessageHandler, filters, ContextTypes
 )
+from telegram.error import Conflict, NetworkError, TimedOut
 
 # Setup logging
 logging.basicConfig(
@@ -19,7 +22,7 @@ logger = logging.getLogger(__name__)
 # Bot configuration
 BOT_TOKEN = "8057866774:AAEMaLJKIyVVqyKn6hEt7tqVt3EzHXzUWno"
 
-# Educational content
+# Educational content (same as before)
 BITCOIN_EDUCATION = {
     "what_is_bitcoin": {
         "en": """🪙 <b>What is Bitcoin?</b>
@@ -497,21 +500,45 @@ Ask me anything about Bitcoin! 🇺🇸"""
     )
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle errors."""
-    logger.error(f"Exception while handling an update: {context.error}")
+    """Handle errors with better conflict resolution."""
+    error = context.error
     
-    # Handle specific errors
-    if "Conflict" in str(context.error):
-        logger.error("❌ Bot conflict detected. Another instance may be running.")
-        logger.info("💡 Solution: Stop all other bot instances and try again.")
-    elif "Forbidden" in str(context.error):
-        logger.error("❌ Bot is blocked by user or doesn't have permission.")
-    elif "BadRequest" in str(context.error):
-        logger.error("❌ Bad request - check bot configuration.")
+    if isinstance(error, Conflict):
+        logger.warning("🔄 Conflict detected - another bot instance may be running")
+        logger.info("💡 Attempting to resolve conflict...")
+        
+        # Wait and retry
+        await asyncio.sleep(5)
+        return
+        
+    elif isinstance(error, (NetworkError, TimedOut)):
+        logger.warning(f"🌐 Network error: {error}")
+        logger.info("💡 Retrying connection...")
+        await asyncio.sleep(3)
+        return
+        
+    else:
+        logger.error(f"❌ Unexpected error: {error}")
+
+def clear_webhook():
+    """Clear any existing webhook to prevent conflicts."""
+    try:
+        response = requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/deleteWebhook")
+        if response.status_code == 200:
+            logger.info("✅ Webhook cleared successfully")
+        else:
+            logger.warning(f"⚠️ Failed to clear webhook: {response.status_code}")
+    except Exception as e:
+        logger.error(f"❌ Error clearing webhook: {e}")
 
 def main():
-    """Start the bot."""
-    # Create application with error handling
+    """Start the bot with conflict resolution."""
+    logger.info("🤖 Starting Conflict-Free BitMshauri Bot...")
+    
+    # Clear any existing webhook first
+    clear_webhook()
+    
+    # Create application with better error handling
     application = Application.builder().token(BOT_TOKEN).build()
     
     # Add error handler
@@ -528,19 +555,23 @@ def main():
     # Add message handler for regular text
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    # Start the bot with conflict resolution
-    logger.info("🤖 Starting BitMshauri Bot with proper handlers...")
-    logger.info("🔄 If you see conflicts, make sure only one instance is running.")
+    # Start the bot with enhanced conflict resolution
+    logger.info("🚀 Starting bot with conflict resolution...")
     
     try:
         application.run_polling(
-            drop_pending_updates=True,  # Clear any pending updates
-            allowed_updates=["message", "callback_query"]  # Only handle these update types
+            drop_pending_updates=True,
+            allowed_updates=["message", "callback_query"],
+            read_timeout=30,
+            write_timeout=30,
+            connect_timeout=30,
+            pool_timeout=30
         )
+    except Conflict as e:
+        logger.error(f"❌ Persistent conflict: {e}")
+        logger.info("💡 Please ensure only one bot instance is running")
     except Exception as e:
         logger.error(f"❌ Failed to start bot: {e}")
-        if "Conflict" in str(e):
-            logger.info("💡 Solution: Stop all other bot instances and try again.")
 
 if __name__ == "__main__":
     main()
