@@ -496,10 +496,26 @@ Ask me anything about Bitcoin! 🇺🇸"""
         parse_mode='HTML'
     )
 
+async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle errors."""
+    logger.error(f"Exception while handling an update: {context.error}")
+    
+    # Handle specific errors
+    if "Conflict" in str(context.error):
+        logger.error("❌ Bot conflict detected. Another instance may be running.")
+        logger.info("💡 Solution: Stop all other bot instances and try again.")
+    elif "Forbidden" in str(context.error):
+        logger.error("❌ Bot is blocked by user or doesn't have permission.")
+    elif "BadRequest" in str(context.error):
+        logger.error("❌ Bad request - check bot configuration.")
+
 def main():
     """Start the bot."""
-    # Create application
+    # Create application with error handling
     application = Application.builder().token(BOT_TOKEN).build()
+    
+    # Add error handler
+    application.add_error_handler(error_handler)
     
     # Add command handlers
     application.add_handler(CommandHandler("start", start_command))
@@ -512,9 +528,19 @@ def main():
     # Add message handler for regular text
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    # Start the bot
+    # Start the bot with conflict resolution
     logger.info("🤖 Starting BitMshauri Bot with proper handlers...")
-    application.run_polling()
+    logger.info("🔄 If you see conflicts, make sure only one instance is running.")
+    
+    try:
+        application.run_polling(
+            drop_pending_updates=True,  # Clear any pending updates
+            allowed_updates=["message", "callback_query"]  # Only handle these update types
+        )
+    except Exception as e:
+        logger.error(f"❌ Failed to start bot: {e}")
+        if "Conflict" in str(e):
+            logger.info("💡 Solution: Stop all other bot instances and try again.")
 
 if __name__ == "__main__":
     main()
